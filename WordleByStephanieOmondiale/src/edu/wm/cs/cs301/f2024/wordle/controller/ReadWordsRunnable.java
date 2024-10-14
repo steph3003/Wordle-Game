@@ -14,11 +14,21 @@ import edu.wm.cs.cs301.f2024.wordle.model.WordleModel;
 
 public class ReadWordsRunnable implements Runnable {
 
+	/**
+	 * Creates a logger that can be used to log messages to help with debugging, tracking the game flow, or reporting errors
+	 */
 	private final static Logger LOGGER =
 			Logger.getLogger(ReadWordsRunnable.class.getName());
 
+	/**
+	 * References the game's model
+	 */
 	private final WordleModel model;
 
+	/**
+	 * Constructor prepares the game to read in words
+	 * @param model Gives access to the current game's state
+	 */
 	public ReadWordsRunnable(WordleModel model) {
 		LOGGER.setLevel(Level.INFO);
 
@@ -34,6 +44,11 @@ public class ReadWordsRunnable implements Runnable {
 		this.model = model;
 	}
 
+	/**
+	 * This method creates a word list for the game and sets it in the model.
+	 *  It also handles logging information and manages exceptions if something goes wrong during the 
+	 *  word list creation
+	 */
 	@Override
 	public void run() {
 		List<String> wordlist;
@@ -51,7 +66,10 @@ public class ReadWordsRunnable implements Runnable {
 		model.generateCurrentWord();
 	}
 
-	
+	/**
+	 * Opens an input stream for the usa.txt file
+	 * @return Returns the stream so that other parts of the program can read from the file
+	 */
 	private InputStream deliverInputStream() {
 		String text = "/resources/usa.txt";
 		// Original code
@@ -73,6 +91,11 @@ public class ReadWordsRunnable implements Runnable {
 		return stream;
 	}
 	
+	/**
+	 * Reads a list of words, checks each word to see if it matches the required length, and then stores the valid words in a list
+	 * @return returns this list of valid words
+	 * @throws IOException
+	 */
 	private List<String> createWordList() throws IOException {
 		int minimum = model.getColumnCount();
 

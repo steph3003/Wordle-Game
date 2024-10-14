@@ -10,14 +10,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Statistics {
 	
+	/**
+	 * Defines variables that track streak and games played
+	 */
 	private int currentStreak, longestStreak, totalGamesPlayed;
 	
+	/**
+	 * A list of the number of words guessed in a game
+	 */
 	private List<Integer> wordsGuessed;
 	
+	/**
+	 * Path holds a file location or directory as a string and log stores a log message or information
+	 */
 	private String path, log;
 	
+	/**
+	 * This method sets up the environment for tracking and storing game statistics
+	 */
 	public Statistics() {
 		this.wordsGuessed = new ArrayList<>();
 		String fileSeparator = System.getProperty("file.separator");
@@ -26,6 +39,9 @@ public class Statistics {
 		readStatistics();
 	}
 	
+	/**
+	 *  This method reads previously saved game statistics from a file and loads them into the program
+	 */
 	private void readStatistics() {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(path + log));
@@ -47,6 +63,9 @@ public class Statistics {
 		}
 	}
 	
+	/**
+	 * method saves the game statistics to a file so that the data can be accessed later
+	 */
 	public void writeStatistics() {
 		try {
 			File file = new File(path);
@@ -76,10 +95,18 @@ public class Statistics {
 		}
 	}
 
+	/**
+	 * Sees how many wins, or other streaks, the player has in the game
+	 * @return returns the player's current streak
+	 */
 	public int getCurrentStreak() {
 		return currentStreak;
 	}
 
+	/**
+	 *  Updates the value of the current streak, and sees if it is the highest streak
+	 * @param currentStreak Value for the player's current streak
+	 */
 	public void setCurrentStreak(int currentStreak) {
 		this.currentStreak = currentStreak;
 		if (currentStreak > longestStreak) {
@@ -87,22 +114,41 @@ public class Statistics {
 		}
 	}
 
+	/**
+	 * Gets the player's longest streak in the game
+	 * @return Return's player's longest streak
+	 */
 	public int getLongestStreak() {
 		return longestStreak;
 	}
 
+	/**
+	 * Tracks number of games player has played
+	 * @return Returns player's total games played
+	 */
 	public int getTotalGamesPlayed() {
 		return totalGamesPlayed;
 	}
 
+	/**
+	 * Increases the total number of games played
+	 */
 	public void incrementTotalGamesPlayed() {
 		this.totalGamesPlayed++;
 	}
 
+	/**
+	 * Keeps a list of the words the player has guessed
+	 * @return returns the words that were guessed
+	 */
 	public List<Integer> getWordsGuessed() {
 		return wordsGuessed;
 	}
 
+	/**
+	 * Adds a number to a list that tracks how many words were guessed across different games.
+	 * @param wordCount Number of words guessed in a single game
+	 */
 	public void addWordsGuessed(int wordCount) {
 		this.wordsGuessed.add(wordCount);
 	}

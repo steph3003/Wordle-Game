@@ -13,18 +13,36 @@ import edu.wm.cs.cs301.f2024.wordle.view.WordleFrame;
 
 public class KeyboardButtonAction extends AbstractAction {
 
+	/**
+	 * defines a version identifier for the class
+	 */
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * Deals with the visual interface of the game
+	 */
 	private final WordleFrame view;
 	
+	/**
+	 * Deals with the logistics of the game
+	 */
 	private final WordleModel model;
-
+	
+/**
+ * This constructor constructs the pressing of a button/key functionality
+ * @param view The Graphical User Interface of the game
+ * @param model The logic/data of the game
+ */
 	public KeyboardButtonAction(WordleFrame view, WordleModel model) {
 		this.view = view;
 		this.model = model;
 	}
 
-	@Override
+	
+	//@Override
+	/**
+	 * This method handles player input in the game (Enter, backspace, etc.)
+	 */
 	public void actionPerformed(ActionEvent event) {
 		JButton button = (JButton) event.getSource();
 		String text = button.getActionCommand();
