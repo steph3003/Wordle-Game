@@ -42,7 +42,7 @@ public class Statistics {
 	/**
 	 *  This method reads previously saved game statistics from a file and loads them into the program
 	 */
-	private void readStatistics() {
+	void readStatistics() {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(path + log));
 			this.currentStreak = Integer.valueOf(br.readLine().trim());
@@ -151,6 +151,11 @@ public class Statistics {
 	 */
 	public void addWordsGuessed(int wordCount) {
 		this.wordsGuessed.add(wordCount);
+	}
+
+	public void setFile(String path2) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

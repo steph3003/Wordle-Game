@@ -1,0 +1,265 @@
+package edu.wm.cs.cs301.f2024.wordle.model;
+import static org.junit.jupiter.api.Assertions.*;
+
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Arrays;
+
+import org.junit.Test;
+
+public class WordleModelTest{
+	/*
+	 *Checks to see if setting an empty list results in an empty word list. 
+	 *Word list should be empty when an empty list is provided
+	 */
+	
+	@Test
+    public void testSetEmptyWordList() {
+        // Set Up
+        WordleModel model = new WordleModel();
+
+        // Checks Functionality
+        model.setWordList(Collections.emptyList());
+
+        // Checks if Outcome is Correct
+        assertEquals(0, model.getTotalWordCount(), "The word list should be empty when an empty list is provided.");
+    }
+	
+	/**
+	 *Checks to see if setting a one word list results in a one word list. 
+	 *Word list should contain one word when one word is provided
+	 */
+    @Test
+    public void testSetWordListWithOneWord() {
+        // Set Up
+        WordleModel model = new WordleModel();
+        List<String> singleWord = Collections.singletonList("apple");
+
+        // Checks Functionality
+        model.setWordList(singleWord);
+
+        // Checks if Outcome is Correct
+        assertEquals(1, model.getTotalWordCount(), "The word list should contain one word.");
+    }
+	
+	/**
+	 * This test should verify that only 5 letter words are in the list. Note: This test should fail
+	 */
+	@Test
+	public void testSetWordListWithInvalidLengths() {
+        // Set Up
+        WordleModel model = new WordleModel();
+        List<String> words = Arrays.asList("apple", "grape", "cat", "toolongword");
+
+        // Checks Functionality
+        model.setWordList(words);
+
+        // Checks if Outcome is Correct
+        assertEquals(2, model.getTotalWordCount(), "Only 5-letter words should be added to the list.");
+    }
+	
+	/**
+	 *  Test with words having specific repeated characters. Multiple consecutively repeated character
+	 *  words should not be accepted. Note: This test should fail
+	 */
+    @Test
+    public void testSetWordListWithRepeatedCharacterWords() {
+        // Set Up
+        WordleModel model = new WordleModel();
+        List<String> wordList = Arrays.asList("aaaaa", "aaaab", "apple");
+
+        // Check Functionality
+        model.setWordList(wordList);
+
+        // Check if outcome is correct
+        assertEquals(1, model.getTotalWordCount(), "The word list should contain three words.");
+        model.generateCurrentWord(); // Assuming this picks a word from the word list
+        String currentWord = new String(model.getCurrentWord());
+        assertTrue(wordList.contains(currentWord), "The generated current word should be one of the words in the word list.");
+    }
+    
+    /**
+     * Tests to see if the Wordle grid is initialized correctly. Grid should initialize
+     * as expected (example, with correct dimensions)
+     */
+    @Test
+    public void testWordGridIsInitializedProperly() {
+        // Set Up
+        WordleModel model = new WordleModel();
+
+        // Check Functionality
+        model.initialize();
+
+        // Assert
+        WordleResponse[][] wordleGrid = model.getWordleGrid();
+        assertNotNull(wordleGrid, "The word grid should be initialized.");
+        assertEquals(model.getMaximumRows(), wordleGrid.length, "Word grid should have the correct number of rows.");
+        assertEquals(model.getColumnCount(), wordleGrid[0].length, "Word grid should have the correct number of columns.");
+    }
+    
+    /**
+     * This test should test if the current word selected is initialized correctly. Game should run smoothly
+     * if word is initialized correctly.
+     */
+    @Test
+    public void testCurrentWordIsSelectedAndInitialized() {
+        // Set Up
+        WordleModel model = new WordleModel();
+        List<String> wordList = Arrays.asList("apple", "berry", "cherry");
+        model.setWordList(wordList);
+
+        // Check Functionality
+        model.setCurrentWord();
+
+        // Check if outcome is correct
+        String currentWord = model.getCurrentWord();
+        assertNotNull(currentWord, "Current word should be initialized after calling setCurrentWord().");
+        assertEquals(5, currentWord.length(), "Current word should have the length of 5.");
+    }
+    
+    /**
+     * Tests to see if current column is updated with the correct letter. Letter inputed should appear in column
+     */
+    @Test
+    public void testCurrentColumnIsUpdated() {
+        // Set Up
+        WordleModel model = new WordleModel();
+        model.initialize();
+        int initialColumn = model.getCurrentColumn();
+        
+        // Check Functionality
+        model.setCurrentColumn('A');
+        
+        // Check if outcome is correct
+        assertEquals(initialColumn + 1, model.getCurrentColumn(), "Current column should be incremented by 1.");
+    }
+    
+    /** 
+     * Tests to see the functionality of the backspace button when at the first position on grid.
+     * Upon pressing back space, we should stay in position 9, and not go below that.
+     */
+    @Test
+    public void testBackspaceWhenCurrentColumnIsZero() {
+        // Set Up
+        WordleModel model = new WordleModel();
+        model.initialize();
+        model.setCurrentColumn('A'); // Assume we add one character and set currentColumn to 0
+        model.backspace(); // This should set currentColumn to 0
+
+        // Check Functionality
+        model.backspace(); // Calling backspace again when currentColumn is zero
+
+        // Check if outcome is correct
+        assertEquals(0, model.getCurrentColumn(), "currentColumn should not go below zero.");
+    }
+    
+    /**
+     * Description: tests to make sure that all letters in the guess are green 
+     * when the guess matches the current word. Background should be green for each letter guessed correctly.
+     */
+    
+    @Test
+    public void testCorrectGuessAllGreen() {
+        // Set Up
+        WordleModel model = new WordleModel();
+        model.initialize();
+        model.setWordList(List.of("APPLE"));
+        model.setCurrentWord(); // Sets current word to "APPLE"
+        model.setCurrentColumn('A');
+        model.setCurrentColumn('P');
+        model.setCurrentColumn('P');
+        model.setCurrentColumn('L');
+        model.setCurrentColumn('E');
+
+        // Check Functionality
+        boolean hasMoreGuesses = model.setCurrentRow();
+
+        // Check if Outcome is Correct
+        WordleResponse[] responses = model.getCurrentRow();
+        for (WordleResponse response : responses) {
+            assertEquals(AppColors.GREEN, response.getBackgroundColor(), "All letters should be marked green for a correct guess.");
+        }
+        assertTrue(hasMoreGuesses, "The game should allow more guesses if maximum rows are not reached.");
+    }
+    
+    /**
+     * Provide a guess where some letters are correct in both value and position (green), 
+     * and some letters are present but in a different position (yellow). The correct letters 
+     * in the correct positions should have a green background and the correct letters in incorrect positions
+     *  should have a yellow background
+     */
+    
+    @Test
+    public void testPartiallyCorrectGuessMixedColors() {
+        // Set Up
+        WordleModel model = new WordleModel();
+        model.initialize();
+        model.setWordList(List.of("APPLE"));
+        model.setCurrentWord(); // Sets current word to "RAIDS"
+        model.setCurrentColumn('M');
+        model.setCurrentColumn('A');
+        model.setCurrentColumn('I');
+        model.setCurrentColumn('S');
+        model.setCurrentColumn('D');
+
+        // Check Functionality
+        model.setCurrentRow();
+
+        // Check if Outcome is Correct5
+        WordleResponse[] responses = model.getCurrentRow();
+        assertEquals(AppColors.GREEN, responses[1].getBackgroundColor(), "Letter A should be green.");
+        assertEquals(AppColors.GRAY, responses[0].getBackgroundColor(), "Letter M should be gray.");
+        assertEquals(AppColors.YELLOW, responses[3].getBackgroundColor(), "Letter S should be yellow.");
+    }
+    
+/**
+ * Test checks of a case where a guess has none of the letters present in the target word. 
+ * All letters should have gray as their background color.
+ */
+    @Test
+    public void testIncorrectGuessAllGray() {
+        // Set Up
+        WordleModel model = new WordleModel();
+        model.initialize();
+        model.setWordList(List.of("APPLE"));
+        model.setCurrentWord(); // Sets current word to "APPLE"
+        model.setCurrentColumn('B');
+        model.setCurrentColumn('C');
+        model.setCurrentColumn('D');
+        model.setCurrentColumn('F');
+        model.setCurrentColumn('G');
+
+        // Check Functionality
+        model.setCurrentRow();
+
+        // Check if Outcome is Correct
+        WordleResponse[] responses = model.getCurrentRow();
+        for (WordleResponse response : responses) {
+            assertEquals(AppColors.GRAY, response.getBackgroundColor(), "All letters should be marked gray for an incorrect guess.");
+        }
+    }
+    
+    /**
+     * Tests checks when after calling the initialize() method on the WordleModel, 
+     * if getStatistics() initializes statistics to original state. This should have statistics 
+     * contain the correct initial values.
+     */
+    
+    @Test
+    public void testGetStatisticsAfterInitialization() {
+        // Set Up
+        WordleModel model = new WordleModel();
+        model.initialize();
+
+        // Check Functionality
+        Statistics stats = model.getStatistics();
+
+        // Check if Outcome is Correct
+        assertNotNull(stats, "The statistics object should still not be null after re-initialization.");
+        assertEquals(0, stats.getTotalGamesPlayed(), "The total games played should be reset to 0 after initialization.");
+    }
+
+}
+
+

@@ -87,7 +87,7 @@ public class WordleModel {
 		this.currentWord = word.toUpperCase().toCharArray();
 	}
 
-	private String getCurrentWord() {
+	String getCurrentWord() {
 		return wordList.get(getRandomIndex());
 	}
 
