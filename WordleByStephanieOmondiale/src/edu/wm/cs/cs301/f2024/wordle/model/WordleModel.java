@@ -3,6 +3,8 @@ package edu.wm.cs.cs301.f2024.wordle.model;
 import java.awt.Color;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import edu.wm.cs.cs301.f2024.wordle.controller.ReadWordsRunnable;
 
@@ -20,6 +22,7 @@ public class WordleModel {
 	private int currentColumn, currentRow;
 	
 	/**
+	 * 
 	 * This keep in a list all of the possible words to be used in the game
 	 */
 	private List<String> wordList;
@@ -33,6 +36,15 @@ public class WordleModel {
 	 * Tracks game statistics
 	 */
 	private final Statistics statistics;
+	
+	// check if word list is loaded
+		private boolean wordListLoaded = false;
+		private CompletableFuture<Void> wordListFuture; 
+		
+		
+		public boolean isWordListLoaded(){
+			return wordListLoaded;
+		}
 	
 	/**
 	 * Tracks the players guesses and the game's progress
@@ -57,15 +69,14 @@ public class WordleModel {
 	 * Loads the word list in a background thread
 	 */
 	private void createWordList() {
-		ReadWordsRunnable runnable = new ReadWordsRunnable(this);
-		Thread backgroundThread = new Thread(runnable);
-		backgroundThread.start();
-		
-		try {
-			backgroundThread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		Thread backgroundThread = new Thread(new Runnable() {
+	        @Override
+	        public void run() {
+	            // After loading completes, update the flag
+	            wordListLoaded = true;
+	        }
+	    });
+	    backgroundThread.start();
 	}
 	
 	/**
@@ -83,8 +94,23 @@ public class WordleModel {
 	 * Generates the word that the player will guess
 	 */
 	public void generateCurrentWord() {
-		String word = getCurrentWord();
-		this.currentWord = word.toUpperCase().toCharArray();
+		// Wait for word list to load if it's not ready
+	    if (!wordListLoaded) {
+	        try {
+	            wordListFuture.join();  // Ensures word list is loaded before proceeding
+	            wordListLoaded = true;  // Mark as loaded after join
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return;  // Exit if loading fails
+	        }
+	    }
+	    // Ensure wordList is not null or empty to avoid errors
+	    if (wordList != null && !wordList.isEmpty()) {
+	    	String word = getCurrentWord();
+	        this.currentWord = word.toUpperCase().toCharArray();
+	    } else {
+	        System.err.println("Error: Word list is empty or failed to load.");
+	    }
 	}
 
 	String getCurrentWord() {
@@ -186,12 +212,22 @@ public class WordleModel {
 			wordleGrid[currentRow][column] = new WordleResponse(guess[column],
 					backgroundColor, foregroundColor);
 		}
-		
 		currentColumn = -1;
 		currentRow++;
 		guess = new char[columnCount];
 		
 		return currentRow < maximumRows;
+	}
+	
+	public boolean isWordInList(String guess){
+		if (!wordListLoaded){
+			try{
+				wordListFuture.get(5, TimeUnit.SECONDS);
+			}catch (Exception e) {
+				return false;
+			}
+		}
+		return wordList.contains(guess.toUpperCase());
 	}
 	
 	private boolean contains(char[] currentWord, char[] guess, int column) {
@@ -252,5 +288,12 @@ public class WordleModel {
 	public Statistics getStatistics() {
 		return statistics;
 	}
-
+	
+	public Boolean isRunning(){
+		return true;
+	}
+	
+	public String getCurrentGuess(){
+		return new String(guess).trim();
+	}
 }

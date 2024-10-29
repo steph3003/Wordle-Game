@@ -2,9 +2,9 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2024-10-15T11:47:50.799622500Z</date>
-  <millis>1728992870799</millis>
-  <nanos>622500</nanos>
+  <date>2024-10-29T02:00:52.049084600Z</date>
+  <millis>1730167252049</millis>
+  <nanos>84600</nanos>
   <sequence>11</sequence>
   <logger>edu.wm.cs.cs301.f2024.wordle.controller.ReadWordsRunnable</logger>
   <level>INFO</level>
@@ -14,15 +14,27 @@
   <message>Created word list of 4435 words.</message>
 </record>
 <record>
-  <date>2024-10-15T11:47:50.817622100Z</date>
-  <millis>1728992870817</millis>
-  <nanos>622100</nanos>
+  <date>2024-10-29T02:00:52.077403200Z</date>
+  <millis>1730167252077</millis>
+  <nanos>403200</nanos>
   <sequence>12</sequence>
   <logger>edu.wm.cs.cs301.f2024.wordle.controller.ReadWordsRunnable</logger>
   <level>INFO</level>
   <class>edu.wm.cs.cs301.f2024.wordle.controller.ReadWordsRunnable</class>
   <method>run</method>
   <thread>44</thread>
+  <message>Created word list of 4435 words.</message>
+</record>
+<record>
+  <date>2024-10-29T02:00:52.110295200Z</date>
+  <millis>1730167252110</millis>
+  <nanos>295200</nanos>
+  <sequence>13</sequence>
+  <logger>edu.wm.cs.cs301.f2024.wordle.controller.ReadWordsRunnable</logger>
+  <level>INFO</level>
+  <class>edu.wm.cs.cs301.f2024.wordle.controller.ReadWordsRunnable</class>
+  <method>run</method>
+  <thread>45</thread>
   <message>Created word list of 4435 words.</message>
 </record>
 </log>

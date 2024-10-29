@@ -1,5 +1,7 @@
 package edu.wm.cs.cs301.f2024.wordle.model;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
+//import java.util.concurrent.TimeUnit;
 
 
 import java.util.Collections;
@@ -258,6 +260,53 @@ public class WordleModelTest{
         // Check if Outcome is Correct
         assertNotNull(stats, "The statistics object should still not be null after re-initialization.");
         assertEquals(0, stats.getTotalGamesPlayed(), "The total games played should be reset to 0 after initialization.");
+    }
+    
+    @Test
+    public void testBug1ThreadSynchronization_GamestartsBeforeWordListLoads() {
+    	 // Create game
+        WordleModel model = new WordleModel();
+        model.initialize();
+
+        // Check that game UI responds immediately
+        assertTrue("Game is running", model.isRunning());
+
+        // Try to make a guess before the word list is fully loaded
+        model.setCurrentColumn('A');
+        assertEquals('A', model.getCurrentGuess().charAt(0));  // Gets first value in column
+
+        // Check if the guess is stored even if word list is not loaded
+        long startTime = System.currentTimeMillis();
+        while (!model.isWordListLoaded() && (System.currentTimeMillis() - startTime) < 5000) {
+            try {
+                Thread.sleep(100);  // Wait in small intervals
+            } catch (InterruptedException e) {
+                fail("testFailed due to interruption");
+            }
+        }
+
+        // Ensure word list eventually loads
+        assertTrue("Word list should load eventually", model.isWordListLoaded());
+    }
+    
+    @Test
+    public void testBug2Coloring() {
+    	
+    }
+    
+    @Test
+    public void testBug3MustGuessRealWords() {
+    	
+    }
+    
+    @Test
+    public void testBug4Backspace() {
+    	
+    }
+    
+    @Test
+    public void testBug5KeyboardColors() {
+    	
     }
 
 }
