@@ -1,4 +1,6 @@
 package edu.wm.cs.cs301.f2024.wordle.model;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 //import java.util.concurrent.TimeUnit;
@@ -6,11 +8,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.awt.Color;
 import java.util.Arrays;
 
 import org.junit.Test;
 
 public class WordleModelTest{
+	
+	 WordleModel model = new WordleModel();
 	/*
 	 *Checks to see if setting an empty list results in an empty word list. 
 	 *Word list should be empty when an empty list is provided
@@ -19,8 +24,7 @@ public class WordleModelTest{
 	@Test
     public void testSetEmptyWordList() {
         // Set Up
-        WordleModel model = new WordleModel();
-
+		 WordleModel model = new WordleModel();
         // Checks Functionality
         model.setWordList(Collections.emptyList());
 
@@ -290,18 +294,94 @@ public class WordleModelTest{
     }
     
     @Test
-    public void testBug2Coloring() {
+    public void testBug2Coloring_YellowColorForSingleLetterOccurance() {
+    	model.setWordList(Arrays.asList("BLURB", "HELLO", "WORLD"));
     	
+    	//make sure word list is loaded
+        model.wordListLoaded = true;
+
+        model.generateCurrentWord();
+
+        model.setCurrentColumn('H');
+        model.setCurrentColumn('E');
+        model.setCurrentColumn('L');
+        model.setCurrentColumn('L');
+        model.setCurrentColumn('O');
+
+        WordleResponse[] response = model.getProcessedRow();
+
+        int yellowCount = 0;
+        for (WordleResponse wr : response) {
+            if (wr.getBackgroundColor().equals(AppColors.YELLOW) &&  wr.getChar() == 'L') {
+                yellowCount++;
+            }
+        }
+        assertEquals("There should be only one yellow 'L'", 1, yellowCount);
     }
     
+    
     @Test
-    public void testBug3MustGuessRealWords() {
+    public void testBug3MustGuessRealWords_InvalidWords() {
+    	model.setWordList(Arrays.asList("BLURB", "HELLO", "WORLD"));
     	
+    	//make sure the word list is loaded
+    	model.wordListLoaded = true;
+    	
+    	//test with valid word
+    	assertTrue("The guess 'HELLO' should be valid", model.isWordInList("HELLO"));
+    	
+    	//test with an invalid word
+    	assertFalse("The guess 'ABCDE' should be invalid", model.isWordInList("HELLO"));
+    	
+    	//Guess invalid word
+    	 model.setCurrentColumn('H');
+         model.setCurrentColumn('E');
+         model.setCurrentColumn('L');
+         model.setCurrentColumn('L');
+         model.setCurrentColumn('O');
+         boolean result = model.setCurrentRow();
+         
+         //Make sure invalid guess is not processed
+         assertFalse("The guess 'ABCDE' should not be processed", result);
+     	
     }
+
     
     @Test
     public void testBug4Backspace() {
-    	
+    	model.setCurrentColumn('A');
+        model.setCurrentColumn('P');
+        model.setCurrentColumn('P');
+        model.setCurrentColumn('L');
+        model.setCurrentColumn('E');
+        
+        //confirm set up
+        assertEquals(4, model.getCurrentColumn(), "Current column should be at position 4 after typing 5 letters");
+        assertEquals('A', model.getWordleGrid()[0][0].getChar(), "1st letter should be A");
+        assertEquals('E', model.getWordleGrid()[0][4].getChar(), " 5th letter should be E");
+        
+        //Do backspace and verify changes
+        model.backspace();
+        assertEquals(3, model.getCurrentColumn(), "Current column should dcecrement to 3 after one backspace");
+        assertNull(model.getWordleGrid()[0][4], "The 5th positon shouldl be null after backspace");
+        
+        model.backspace();
+        assertEquals(2,model.getCurrentColumn(), "Current column should dcecrement to 2");
+        assertNull(model.getWordleGrid()[0][3],"The 4th positon shouldl be null after backspace");
+        
+        model.backspace();
+        assertEquals(1,model.getCurrentColumn(), "Current column should dcecrement to 1");
+        assertNull(model.getWordleGrid()[0][2], "The 3th positon shouldl be null after backspace");
+        
+        model.backspace();
+        assertEquals(0,model.getCurrentColumn(), "Current column should dcecrement to 0");
+        assertNull(model.getWordleGrid()[0][1], "The 2nd positon shouldl be null after backspace");
+        
+        model.backspace();
+        assertEquals(-1, model.getCurrentColumn(), "Current column should be -1 after clearing all letters");
+        assertNull(model.getWordleGrid()[0][0], "The 1st positon shouldl be null after backspace");
+        
+    
     }
     
     @Test

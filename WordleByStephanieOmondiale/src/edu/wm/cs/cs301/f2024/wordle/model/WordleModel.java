@@ -1,7 +1,9 @@
 package edu.wm.cs.cs301.f2024.wordle.model;
 
 import java.awt.Color;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +40,7 @@ public class WordleModel {
 	private final Statistics statistics;
 	
 	// check if word list is loaded
-		private boolean wordListLoaded = false;
+		boolean wordListLoaded = false;
 		private CompletableFuture<Void> wordListFuture; 
 		
 		
@@ -65,10 +67,22 @@ public class WordleModel {
 		this.statistics = new Statistics();
 	}
 	
+	 // Loads the word list asynchronously by starting a background thread
+    public void createWordList() {
+        Thread backgroundThread = new Thread(new Runnable() {
+        	@Override
+        	public void run() {
+        		wordListLoaded = true;
+        	}
+        });
+        backgroundThread.start();
+    }
+	
 	/**
 	 * Loads the word list in a background thread
 	 */
-	private void createWordList() {
+	/*
+	 * private void createWordList() {
 		Thread backgroundThread = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
@@ -78,6 +92,9 @@ public class WordleModel {
 	    });
 	    backgroundThread.start();
 	}
+	
+	
+	 */
 	
 	/**
 	 * Sets up or resets the game state
@@ -113,7 +130,7 @@ public class WordleModel {
 	    }
 	}
 
-	String getCurrentWord() {
+	public String getCurrentWord() {
 		return wordList.get(getRandomIndex());
 	}
 
@@ -170,11 +187,41 @@ public class WordleModel {
 	 * when backspace is pressed 
 	 */
 	public void backspace() {
-		wordleGrid[currentRow][currentColumn] = null;
-		guess[currentColumn] = ' ';
-		this.currentColumn--;
-		this.currentColumn = Math.max(currentColumn, 0);
+		if (currentColumn >= 0) {
+            wordleGrid[currentRow][currentColumn] = null;
+            guess[currentColumn] = ' ';
+            currentColumn--;
+        }
 	}
+	
+	public WordleResponse[] getProcessedRow() {
+        WordleResponse[] rowResponse = new WordleResponse[columnCount];
+        Map<Character, Integer> letterCount = new HashMap<>();
+
+        for (char c : currentWord) {
+            letterCount.put(c, letterCount.getOrDefault(c, 0) + 1);
+        }
+
+        for (int i = 0; i < columnCount; i++) {
+            char guessedChar = guess[i];
+            if (guessedChar == currentWord[i]) {
+                rowResponse[i] = new WordleResponse(guessedChar, AppColors.GREEN, Color.WHITE);
+                letterCount.put(guessedChar, letterCount.get(guessedChar) - 1);
+            } else {
+                rowResponse[i] = new WordleResponse(guessedChar, AppColors.GRAY, Color.WHITE);
+            }
+        }
+
+        for (int i = 0; i < columnCount; i++) {
+            char guessedChar = guess[i];
+            if (rowResponse[i].getBackgroundColor() == AppColors.GRAY && letterCount.getOrDefault(guessedChar, 0) > 0) {
+                rowResponse[i] = new WordleResponse(guessedChar, AppColors.YELLOW, Color.WHITE);
+                letterCount.put(guessedChar, letterCount.get(guessedChar) - 1);
+            }
+        }
+
+        return rowResponse;
+    }
 	
 	/**
 	 * Returns the current row, the part of the grid storing the player's guess
@@ -189,7 +236,7 @@ public class WordleModel {
 	 * @return Returns index where player is making their guess
 	 */
 	public int getCurrentRowNumber() {
-		return currentRow - 1;
+		return currentRow -1;
 	}
 	
 	/**
@@ -199,46 +246,32 @@ public class WordleModel {
 	 * to max allowed rows
 	 * returns false if max number of attempts have been reached. 
 	 */
-	public boolean setCurrentRow() {		
-		for (int column = 0; column < guess.length; column++) {
-			Color backgroundColor = AppColors.GRAY;
-			Color foregroundColor = Color.WHITE;
-			if (guess[column] == currentWord[column]) {
-				backgroundColor = AppColors.GREEN;
-			} else if (contains(currentWord, guess, column)) {
-				backgroundColor = AppColors.YELLOW;
-			}
-			
-			wordleGrid[currentRow][column] = new WordleResponse(guess[column],
-					backgroundColor, foregroundColor);
-		}
-		currentColumn = -1;
-		currentRow++;
-		guess = new char[columnCount];
+	public boolean setCurrentRow() {
 		
-		return currentRow < maximumRows;
+		String currentGuess = new String(guess).trim().toUpperCase();
+		 if (!isWordInList(currentGuess)) {
+	            System.out.println("Invalid guess. Try a different word.");
+	            return false;
+	        }
+		 for (int column = 0; column < guess.length; column++) {
+	            Color backgroundColor = AppColors.GRAY;
+	            Color foregroundColor = Color.WHITE;
+	            if (guess[column] == currentWord[column]) {
+	                backgroundColor = AppColors.GREEN;
+	            } else if (contains(currentWord, guess, column)) {
+	                backgroundColor = AppColors.YELLOW;
+	            }
+	            wordleGrid[currentRow][column] = new WordleResponse(guess[column], backgroundColor, foregroundColor);
+	        }
+
+	        currentColumn = -1;
+	        currentRow++;
+	        guess = new char[columnCount];
+
+	        return currentRow < maximumRows;
+	    
 	}
 	
-	public boolean isWordInList(String guess){
-		if (!wordListLoaded){
-			try{
-				wordListFuture.get(5, TimeUnit.SECONDS);
-			}catch (Exception e) {
-				return false;
-			}
-		}
-		return wordList.contains(guess.toUpperCase());
-	}
-	
-	private boolean contains(char[] currentWord, char[] guess, int column) {
-		for (int index = 0; index < currentWord.length; index++) {
-			if (index != column && guess[column] == currentWord[index]) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
 
 	/**
 	 * Returns the current game board with players inputs
@@ -278,7 +311,25 @@ public class WordleModel {
 	 * @return Returns the number of possible words that can be guessed
 	 */
 	public int getTotalWordCount() {
-		return wordList.size();
+		try {
+            // Ensure the word list has been loaded
+            if (!isWordListLoaded()) {
+                wordListFuture.join(); // Wait for the word list to load if not loaded yet
+            }
+
+            // Check if the word list is not null before returning the size
+            if (wordList != null) {
+                return wordList.size();
+            } else {
+                System.err.println("Error: Word list is null.");
+                return 0; // Or throw an exception if you'd prefer to handle it elsewhere
+            }
+        } catch (Exception e) {
+            // Handle any exceptions that might occur during loading
+            e.printStackTrace();
+            System.err.println("Error: Unable to retrieve word list size.");
+            return 0; // Return 0 or another error code to signify failure
+        }
 	}
 
 	/**
@@ -296,4 +347,46 @@ public class WordleModel {
 	public String getCurrentGuess(){
 		return new String(guess).trim();
 	}
+	
+	// Checks if the guessed word is in the word list
+    public boolean isWordInList(String guess) {
+        if (!wordListLoaded) {
+            try {
+                wordListFuture.get(5, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return wordList.contains(guess.toUpperCase());
+    }
+	
+	boolean validGuess() {
+		String guessWord = new String(guess).trim().toLowerCase();
+		System.out.println("Guess Word " + guessWord);
+		boolean valid = wordList.contains(guessWord);
+		System.out.println(wordList.get(0));
+		return wordList.contains(guessWord);
+	}
+	
+	
+	/**
+	 * checks if the word contains the letter. Checks if the current guess contains the guessed letter
+	 * but in the wrong place
+	 * @param currentWord The correct word
+	 * @param guess The players guess
+	 * @param column The column being checked
+	 * @param matchedGuess the player's guess matches the current word
+	 * @return Returns true if the letter is in the word but not in the right column. return false otherwise
+	 */
+	// Checks if the guessed letter is present in the current word but at a different position
+    private boolean contains(char[] currentWord, char[] guess, int column) {
+        for (int index = 0; index < currentWord.length; index++) {
+            if (index != column && guess[column] == currentWord[index]) {
+                return true;
+            }
+        }
+        return false;
+    }
+	
+	
 }
