@@ -360,5 +360,21 @@ public class WordleModel{
         // Update the color in letterState if the newColor is a higher priority
         letterState.put(letter, newColor);
     }
+    
+    public void incrementTotalGamesPlayed() {
+        statistics.incrementTotalGamesPlayed();
+    }
+
+    public void addWordsGuessed(int rowNumber) {
+        statistics.addWordsGuessed(rowNumber);
+    }
+
+    public int getCurrentStreak() {
+        return statistics.getCurrentStreak();
+    }
+
+    public void setCurrentStreak(int streak) {
+        statistics.setCurrentStreak(streak);
+    }
 }
 

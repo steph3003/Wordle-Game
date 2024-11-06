@@ -96,19 +96,17 @@ public class KeyboardButtonAction extends AbstractAction {
 		}
 
 		private void handleWin() {
-		    view.repaintWordleGridPanel();
-		    model.getStatistics().incrementTotalGamesPlayed();
-		    int currentRowNumber = model.getCurrentRowNumber();
-		    model.getStatistics().addWordsGuessed(currentRowNumber);
-		    int currentStreak = model.getStatistics().getCurrentStreak();
-		    model.getStatistics().setCurrentStreak(++currentStreak);
+			int currentRowNumber = model.getCurrentRowNumber();
+		    model.addWordsGuessed(currentRowNumber);
+		    int currentStreak = model.getCurrentStreak();
+		    model.setCurrentStreak(++currentStreak);
 		    new StatisticsDialog(view, model);
 		}
 
 		private void handleLoss() {
-		    view.repaintWordleGridPanel();
-		    model.getStatistics().incrementTotalGamesPlayed();
-		    model.getStatistics().setCurrentStreak(0);
+			view.repaintWordleGridPanel();
+		    model.incrementTotalGamesPlayed();
+		    model.setCurrentStreak(0);
 		    new StatisticsDialog(view, model);
 
     }
