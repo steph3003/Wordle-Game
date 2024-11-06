@@ -295,7 +295,7 @@ public class WordleModelTest{
     
     @Test
     public void testBug2Coloring_YellowColorForSingleLetterOccurance() {
-    	model.setWordList(Arrays.asList("BLURB", "HELLO", "WORLD"));
+    	model.setWordList(Arrays.asList("BLURB", "HELLO", "APPLE"));
     	
     	//make sure word list is loaded
         model.wordListLoaded = true;
@@ -312,7 +312,7 @@ public class WordleModelTest{
 
         int yellowCount = 0;
         for (WordleResponse wr : response) {
-            if (wr.getBackgroundColor().equals(AppColors.YELLOW) &&  wr.getChar() == 'L') {
+            if (wr.getBackgroundColor().equals(AppColors.YELLOW)){
                 yellowCount++;
             }
         }
@@ -322,7 +322,7 @@ public class WordleModelTest{
     
     @Test
     public void testBug3MustGuessRealWords_InvalidWords() {
-    	model.setWordList(Arrays.asList("BLURB", "HELLO", "WORLD"));
+    	model.setWordList(Arrays.asList("BLURB", "HELLO", "APPLE"));
     	
     	//make sure the word list is loaded
     	model.wordListLoaded = true;
@@ -331,7 +331,7 @@ public class WordleModelTest{
     	assertTrue("The guess 'HELLO' should be valid", model.isWordInList("HELLO"));
     	
     	//test with an invalid word
-    	assertFalse("The guess 'ABCDE' should be invalid", model.isWordInList("HELLO"));
+    	assertFalse("The guess 'ABABA' should be invalid", model.isWordInList("HELLO"));
     	
     	//Guess invalid word
     	 model.setCurrentColumn('H');
@@ -342,7 +342,7 @@ public class WordleModelTest{
          boolean result = model.setCurrentRow();
          
          //Make sure invalid guess is not processed
-         assertFalse("The guess 'ABCDE' should not be processed", result);
+         assertFalse("The guess 'ABABA' should not be processed", result);
      	
     }
 
