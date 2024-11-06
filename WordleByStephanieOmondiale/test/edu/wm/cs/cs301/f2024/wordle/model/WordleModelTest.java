@@ -386,9 +386,48 @@ public class WordleModelTest{
     
     @Test
     public void testBug5KeyboardColors() {
-    	
-    }
+    	// Set up game model with "BLURB" as the target word
+        model.setWordList(Arrays.asList("BLURB"));
+        model.wordListLoaded = true;
+        model.generateCurrentWord();  // Sets "BLURB" as the target word
 
+        // Make the first guess "HELLO"
+        model.setCurrentColumn('H');
+        model.setCurrentColumn('E');
+        model.setCurrentColumn('L');
+        model.setCurrentColumn('L');
+        model.setCurrentColumn('O');
+        model.setCurrentRow();  // Finalize the guess
+
+        // Retrieve the row from wordleGrid to check colors for the guess "HELLO"
+        WordleResponse[] responseRow = model.getCurrentRow();  // Assume this retrieves the latest row in the grid
+
+        // Check expected colors for each letter
+        assertEquals("H should be gray (incorrect)", AppColors.GRAY, responseRow[0].getBackgroundColor());
+        assertEquals("E should be gray (incorrect)", AppColors.GRAY, responseRow[1].getBackgroundColor());
+        assertEquals("First L should be yellow (wrong position)", AppColors.YELLOW, responseRow[2].getBackgroundColor());
+        assertEquals("Second L should be gray (no second L in BLURB)", AppColors.GRAY, responseRow[3].getBackgroundColor());
+        assertEquals("O should be gray (incorrect)", AppColors.GRAY, responseRow[4].getBackgroundColor());
+
+        // Make a second guess "BLUSH" to see if previously used letters are updated correctly
+        model.setCurrentColumn('B');
+        model.setCurrentColumn('L');
+        model.setCurrentColumn('U');
+        model.setCurrentColumn('S');
+        model.setCurrentColumn('H');
+        model.setCurrentRow();  // Finalize the guess
+
+        // Retrieve the next row from wordleGrid to check colors for the guess "BLUSH"
+        WordleResponse[] responseRow2 = model.getCurrentRow();
+
+        // Check expected colors for each letter in the second guess
+        assertEquals("B should be green (correct position)", AppColors.GREEN, responseRow2[0].getBackgroundColor());
+        assertEquals("L should be green (correct position)", AppColors.GREEN, responseRow2[1].getBackgroundColor());
+        assertEquals("U should be green (correct position)", AppColors.GREEN, responseRow2[2].getBackgroundColor());
+        assertEquals("S should be gray (incorrect)", AppColors.GRAY, responseRow2[3].getBackgroundColor());
+        assertEquals("H should be gray (incorrect)", AppColors.GRAY, responseRow2[4].getBackgroundColor());
+
+    }
 }
 
 

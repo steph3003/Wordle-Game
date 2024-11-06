@@ -44,51 +44,72 @@ public class KeyboardButtonAction extends AbstractAction {
 	 * This method handles player input in the game (Enter, backspace, etc.)
 	 */
 	public void actionPerformed(ActionEvent event) {
-		JButton button = (JButton) event.getSource();
-		String text = button.getActionCommand();
-		switch (text) {
-		case "Enter":
-			if (model.getCurrentColumn() >= (model.getColumnCount() - 1)) {
-				boolean moreRows = model.setCurrentRow();
-				WordleResponse[] currentRow = model.getCurrentRow();
-				int greenCount = 0;
-				for (WordleResponse wordleResponse : currentRow) {
-					view.setColor(Character.toString(wordleResponse.getChar()),
-							wordleResponse.getBackgroundColor(), 
-							wordleResponse.getForegroundColor());
-					if (wordleResponse.getBackgroundColor().equals(AppColors.GREEN)) {
-						greenCount++;
-					} 
-				}
-				
-				if (greenCount >= model.getColumnCount()) {
-					view.repaintWordleGridPanel();
-					model.getStatistics().incrementTotalGamesPlayed();
-					int currentRowNumber = model.getCurrentRowNumber();
-					model.getStatistics().addWordsGuessed(currentRowNumber);
-					int currentStreak = model.getStatistics().getCurrentStreak();
-					model.getStatistics().setCurrentStreak(++currentStreak);
-					new StatisticsDialog(view, model);
-				} else if (!moreRows) {
-					view.repaintWordleGridPanel();
-					model.getStatistics().incrementTotalGamesPlayed();
-					model.getStatistics().setCurrentStreak(0);
-					new StatisticsDialog(view, model);
-				} else {
-					view.repaintWordleGridPanel();
-				}
-			}
-			break;
-		case "Backspace":
-			model.backspace();
-			view.repaintWordleGridPanel();
-			break;
-		default:
-			model.setCurrentColumn(text.charAt(0));
-			view.repaintWordleGridPanel();
-			break;
+		 JButton button = (JButton) event.getSource();
+		    String text = button.getActionCommand();
+		    
+		    switch (text) {
+		        case "Enter":
+		            handleEnter();
+		            break;
+		            
+		        case "Backspace":
+		            handleBackspace();
+		            break;
+		            
+		        default:
+		            handleCharacterInput(text);
+		            break;
+		    }
 		}
-		
-	}
 
-}
+		private void handleEnter() {
+		    if (model.getCurrentColumn() >= (model.getColumnCount() - 1)) {
+		        boolean moreRows = model.setCurrentRow();
+		        WordleResponse[] currentRow = model.getCurrentRow();
+		        int greenCount = 0;
+		        
+		        for (WordleResponse wordleResponse : currentRow) {
+		            view.setColor(Character.toString(wordleResponse.getChar()), wordleResponse.getBackgroundColor(), wordleResponse.getForegroundColor());
+		            if (wordleResponse.getBackgroundColor().equals(AppColors.GREEN)) {
+		                greenCount++;
+		            }
+		        }
+		        
+		        if (greenCount >= model.getColumnCount()) {
+		            handleWin();
+		        } else if (!moreRows) {
+		            handleLoss();
+		        } else {
+		            view.repaintWordleGridPanel();
+		        }
+		    }
+		}
+
+		private void handleBackspace() {
+		    model.backspace();
+		    view.repaintWordleGridPanel();
+		}
+
+		private void handleCharacterInput(String text) {
+		    model.setCurrentColumn(text.charAt(0));
+		    view.repaintWordleGridPanel();
+		}
+
+		private void handleWin() {
+		    view.repaintWordleGridPanel();
+		    model.getStatistics().incrementTotalGamesPlayed();
+		    int currentRowNumber = model.getCurrentRowNumber();
+		    model.getStatistics().addWordsGuessed(currentRowNumber);
+		    int currentStreak = model.getStatistics().getCurrentStreak();
+		    model.getStatistics().setCurrentStreak(++currentStreak);
+		    new StatisticsDialog(view, model);
+		}
+
+		private void handleLoss() {
+		    view.repaintWordleGridPanel();
+		    model.getStatistics().incrementTotalGamesPlayed();
+		    model.getStatistics().setCurrentStreak(0);
+		    new StatisticsDialog(view, model);
+
+    }
+}		

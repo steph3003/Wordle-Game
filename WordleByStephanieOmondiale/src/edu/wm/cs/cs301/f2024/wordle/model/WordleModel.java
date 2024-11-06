@@ -10,7 +10,11 @@ import java.util.concurrent.TimeUnit;
 
 import edu.wm.cs.cs301.f2024.wordle.controller.ReadWordsRunnable;
 
-public class WordleModel {
+
+//import java.util.HashMap;
+//import java.util.Map;
+
+public class WordleModel{
 	// Current word to be processed, stored as an array of characters
     private char[] currentWord, guess;
 
@@ -42,6 +46,9 @@ public class WordleModel {
     public boolean isWordListLoaded() {
         return wordListLoaded;
     }
+    
+ // Tracks the color state of each letter for the visual keyboard
+    private Map<Character, Color> letterState = new HashMap<>();
 
     // Constructor: Initializes the game model by setting up the grid, loading word list, and preparing stats
     public WordleModel() {
@@ -149,27 +156,59 @@ public class WordleModel {
     // Processes the current guess, compares it to the current word, and updates the grid with feedback
     // Returns false if the guess is invalid or true if the guess is processed successfully
     public boolean setCurrentRow() {
-        String currentGuess = new String(guess).trim().toUpperCase();
-        if (!isWordInList(currentGuess)) {
-            System.out.println("Invalid guess. Try a different word.");
-            return false;
+    	if (!validGuess()) {
+            System.out.println("Invalid guess");
+            return true;
+        }
+    	
+    	// Step 0: Count occurrences of each letter in the target word
+        Map<Character, Integer> letterCounts = new HashMap<>();
+        for (char c : currentWord) {
+            letterCounts.put(c, letterCounts.getOrDefault(c, 0) + 1);
         }
 
+        boolean[] matchedGuess = new boolean[currentWord.length];
+
+        // Step 1: First pass to mark correct positions (green)
         for (int column = 0; column < guess.length; column++) {
-            Color backgroundColor = AppColors.GRAY;
-            Color foregroundColor = Color.WHITE;
-            if (guess[column] == currentWord[column]) {
-                backgroundColor = AppColors.GREEN;
-            } else if (contains(currentWord, guess, column)) {
-                backgroundColor = AppColors.YELLOW;
+            char guessedLetter = guess[column];
+            
+            if (guessedLetter == currentWord[column]) {
+                // Correct position, mark as green
+                wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.GREEN, Color.WHITE);
+                matchedGuess[column] = true;
+                letterCounts.put(guessedLetter, letterCounts.get(guessedLetter) - 1); // Decrement count for green
+                updateLetterState(guessedLetter, AppColors.GREEN); // Mark letter as green in letterState
             }
-            wordleGrid[currentRow][column] = new WordleResponse(guess[column], backgroundColor, foregroundColor);
         }
 
-        currentColumn = -1;
-        currentRow++;
-        guess = new char[columnCount];
+        // Step 2: Second pass to mark wrong positions (yellow)
+        for (int column = 0; column < guess.length; column++) {
+            char guessedLetter = guess[column];
 
+            // Skip if already marked as green
+            if (wordleGrid[currentRow][column] != null && wordleGrid[currentRow][column].getBackgroundColor() == AppColors.GREEN) {
+                continue;
+            }
+
+            // Check if the letter is in the target word in a different position and has remaining occurrences
+            if (letterCounts.getOrDefault(guessedLetter, 0) > 0 && contains(currentWord, guess, column)) {
+                wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.YELLOW, Color.BLACK);
+                letterCounts.put(guessedLetter, letterCounts.get(guessedLetter) - 1);  // Decrement count for yellow
+                updateLetterState(guessedLetter, AppColors.YELLOW); // Mark letter as yellow in letterState
+            } else {
+                // If not in the target word or no remaining occurrences, mark as gray
+                wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.GRAY, Color.WHITE);
+                updateLetterState(guessedLetter, AppColors.GRAY); // Mark letter as gray in letterState
+            }
+        }
+
+        // Reset currentColumn to 0 for the next guess rather than -1
+        currentColumn = 0;
+        currentRow++;
+        guess = new char[columnCount];  // Reset guess for the next row
+
+        // Return whether there are more rows available
         return currentRow < maximumRows;
     }
 
@@ -299,4 +338,27 @@ public class WordleModel {
 
         return rowResponse;
     }
+    
+    private boolean validGuess() {
+        // Convert guess to a trimmed, lowercase string
+        String guessWord = new String(guess).trim().toLowerCase();
+        
+        // Check if the guessWord exists in the word list
+        return wordList.contains(guessWord);
+    }
+    
+    private void updateLetterState(char letter, Color newColor) {
+        Color currentColor = letterState.getOrDefault(letter, AppColors.GRAY);
+
+        // Only upgrade colors: green > yellow > gray
+        if (currentColor == AppColors.GREEN) {
+            return; // Already green, don’t downgrade
+        } else if (currentColor == AppColors.YELLOW && newColor == AppColors.GRAY) {
+            return; // Already yellow, don’t downgrade to gray
+        }
+
+        // Update the color in letterState if the newColor is a higher priority
+        letterState.put(letter, newColor);
+    }
 }
+
