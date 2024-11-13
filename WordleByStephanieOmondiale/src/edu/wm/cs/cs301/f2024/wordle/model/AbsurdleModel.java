@@ -12,6 +12,65 @@ public class AbsurdleModel {
 
 	//verifies word list is loaded
     public boolean wordListLoaded;
+    
+    //logger
+    private static final Logger logger = Logger.getLogger(AbsurdleModel.class.getName());
+    
+    public AbsurdleModel(List<String> wordList) {
+        this.possibleWords = new ArrayList<>(wordList);
+        this.remainingWords = new ArrayList<>(wordList);
+    }
+
+    // Reset the game to start with the full list
+    public void resetGame() {
+        remainingWords = new ArrayList<>(possibleWords);
+    }
+
+    public String guessWord(String guess) {
+        Map<String, List<String>> patternToWords = new HashMap<>();
+
+        // Generate patterns and map them to subsets of possible words
+        for (String word : remainingWords) {
+            String pattern = generatePattern(guess, word);
+            patternToWords.computeIfAbsent(pattern, k -> new ArrayList<>()).add(word);
+        }
+
+        // Select the largest subset of words
+        String chosenPattern = "";
+        int maxSubsetSize = 0;
+        for (Map.Entry<String, List<String>> entry : patternToWords.entrySet()) {
+            if (entry.getValue().size() > maxSubsetSize) {
+                maxSubsetSize = entry.getValue().size();
+                chosenPattern = entry.getKey();
+                remainingWords = entry.getValue();
+            }
+        }
+
+        // Log the guess and remaining words count
+        logger.info("Guess: " + guess + ", Pattern: " + chosenPattern + ", Remaining words: " + remainingWords.size());
+
+        return chosenPattern;
+    }
+
+    private String generatePattern(String guess, String word) {
+        StringBuilder pattern = new StringBuilder();
+        for (int i = 0; i < guess.length(); i++) {
+            if (guess.charAt(i) == word.charAt(i)) {
+                pattern.append("G"); // G for correct position (green)
+            } else if (word.contains(Character.toString(guess.charAt(i)))) {
+                pattern.append("Y"); // Y for wrong position (yellow)
+            } else {
+                pattern.append("B"); // B for no match (black)
+            }
+        }
+        return pattern.toString();
+    }
+
+    public int getRemainingWordsSize() {
+        return remainingWords.size();
+    }
+
+
 
 	// Checks if the word list has finished loading
     public boolean isWordListLoaded() {
@@ -185,5 +244,5 @@ public class AbsurdleModel {
     public void setCurrentStreak(int streak) {
         //set the streak value
     }
-
+    
 }
