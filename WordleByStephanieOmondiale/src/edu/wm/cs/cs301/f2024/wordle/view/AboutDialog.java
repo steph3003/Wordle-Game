@@ -17,6 +17,7 @@ import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
@@ -123,6 +124,11 @@ public class AboutDialog extends JDialog {
 		
 		return panel;
 	}
+	
+	// Add "Settings" to the help menu
+	JMenuItem settingsItem = new JMenuItem("Settings");
+	settingsItem.addActionListener(e -> new SettingsDialog().setVisible(true));
+	helpMenu.add(settingsItem);
 	
 	private class CancelAction extends AbstractAction {
 

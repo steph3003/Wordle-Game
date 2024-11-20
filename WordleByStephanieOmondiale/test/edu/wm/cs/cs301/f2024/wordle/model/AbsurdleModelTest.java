@@ -95,7 +95,7 @@ public class AbsurdleModelTest {
 	    	AbsurdleModel model = new AbsurdleModel();
 
 	        // Check Functionality
-	        model.initialize();
+	        model.initializeWordleGrid();
 
 	        // Assert
 	        WordleResponse[][] wordleGrid = model.getWordleGrid();
@@ -131,7 +131,7 @@ public class AbsurdleModelTest {
 	    public void testCurrentColumnIsUpdated() {
 	        // Set Up
 	    	AbsurdleModel model = new AbsurdleModel();
-	        model.initialize();
+	        model.initializeWordleGrid();
 	        int initialColumn = model.getCurrentColumn();
 	        
 	        // Check Functionality
@@ -149,7 +149,7 @@ public class AbsurdleModelTest {
 	    public void testBackspaceWhenCurrentColumnIsZero() {
 	        // Set Up
 	    	AbsurdleModel model = new AbsurdleModel();
-	        model.initialize();
+	        model.initializeWordleGrid();
 	        model.setCurrentColumn('A'); // Assume we add one character and set currentColumn to 0
 	        model.backspace(); // This should set currentColumn to 0
 
@@ -169,7 +169,7 @@ public class AbsurdleModelTest {
 	    public void testCorrectGuessAllGreen() {
 	        // Set Up
 	    	AbsurdleModel model = new AbsurdleModel();
-	        model.initialize();
+	        model.initializeWordleGrid();
 	        model.setWordList(List.of("APPLE"));
 	        model.setCurrentWord(); // Sets current word to "APPLE"
 	        model.setCurrentColumn('A');
@@ -182,7 +182,7 @@ public class AbsurdleModelTest {
 	        boolean hasMoreGuesses = model.setCurrentRow();
 
 	        // Check if Outcome is Correct
-	        WordleResponse[] responses = model.getCurrentRow();
+	        WordleResponse[] responses = model.getCurrentGuess();
 	        for (WordleResponse response : responses) {
 	            assertEquals(AppColors.GREEN, response.getBackgroundColor(), "All letters should be marked green for a correct guess.");
 	        }
@@ -200,7 +200,7 @@ public class AbsurdleModelTest {
 	    public void testPartiallyCorrectGuessMixedColors() {
 	        // Set Up
 	    	AbsurdleModel model = new AbsurdleModel();
-	        model.initialize();
+	        model.initializeWordleGrid();
 	        model.setWordList(List.of("APPLE"));
 	        model.setCurrentWord(); // Sets current word to "RAIDS"
 	        model.setCurrentColumn('M');
@@ -213,7 +213,7 @@ public class AbsurdleModelTest {
 	        model.setCurrentRow();
 
 	        // Check if Outcome is Correct5
-	        WordleResponse[] responses = model.getCurrentRow();
+	        WordleResponse[] responses = model.getCurrentGuess();
 	        assertEquals(AppColors.GREEN, responses[1].getBackgroundColor(), "Letter A should be green.");
 	        assertEquals(AppColors.GRAY, responses[0].getBackgroundColor(), "Letter M should be gray.");
 	        assertEquals(AppColors.YELLOW, responses[3].getBackgroundColor(), "Letter S should be yellow.");
@@ -227,7 +227,7 @@ public class AbsurdleModelTest {
 	    public void testIncorrectGuessAllGray() {
 	        // Set Up
 	    	AbsurdleModel model = new AbsurdleModel();
-	        model.initialize();
+	        model.initializeWordleGrid();
 	        model.setWordList(List.of("APPLE"));
 	        model.setCurrentWord(); // Sets current word to "APPLE"
 	        model.setCurrentColumn('B');
@@ -240,7 +240,7 @@ public class AbsurdleModelTest {
 	        model.setCurrentRow();
 
 	        // Check if Outcome is Correct
-	        WordleResponse[] responses = model.getCurrentRow();
+	        WordleResponse[] responses = model.getCurrentGuess();
 	        for (WordleResponse response : responses) {
 	            assertEquals(AppColors.GRAY, response.getBackgroundColor(), "All letters should be marked gray for an incorrect guess.");
 	        }
@@ -256,7 +256,7 @@ public class AbsurdleModelTest {
 	    public void testGetStatisticsAfterInitialization() {
 	        // Set Up
 	    	AbsurdleModel model = new AbsurdleModel();
-	        model.initialize();
+	        model.initializeWordleGrid();
 
 	        // Check Functionality
 	        Statistics stats = model.getStatistics();
@@ -270,7 +270,7 @@ public class AbsurdleModelTest {
 	    public void testBug1ThreadSynchronization_GamestartsBeforeWordListLoads() {
 	    	 // Create game
 	    	AbsurdleModel model = new AbsurdleModel();
-	        model.initialize();
+	        model.initializeWordleGrid();
 
 	        // Check that game UI responds immediately
 	        assertTrue("Game is running", model.isRunning());
@@ -400,7 +400,7 @@ public class AbsurdleModelTest {
 	        model.setCurrentRow();  // Finalize the guess
 
 	        // Retrieve the row from wordleGrid to check colors for the guess "HELLO"
-	        WordleResponse[] responseRow = model.getCurrentRow();  // Assume this retrieves the latest row in the grid
+	        WordleResponse[] responseRow = model.getCurrentGuess();  // Assume this retrieves the latest row in the grid
 
 	        // Check expected colors for each letter
 	        assertEquals("H should be gray (incorrect)", AppColors.GRAY, responseRow[0].getBackgroundColor());
@@ -433,7 +433,7 @@ public class AbsurdleModelTest {
 	    public void testRecordWin() {
 	        // Arrange: Initialize the AbsurdleModel and set up any necessary values
 	        AbsurdleModel model = new AbsurdleModel();
-	        model.initialize();
+	        model.initializeWordleGrid();
 	        int initialTotalGames = model.getStatistics().getTotalGamesPlayed();
 	        int initialWinStreak = model.getCurrentStreak();
 
@@ -449,7 +449,7 @@ public class AbsurdleModelTest {
 	    public void testRecordLoss() {
 	        // Arrange: Initialize the AbsurdleModel and set up any necessary values
 	        AbsurdleModel model = new AbsurdleModel();
-	        model.initialize();
+	        model.initializeWordleGrid();
 
 	        // Simulate a winning streak to ensure it's reset by the loss
 	        model.recordWin(1);

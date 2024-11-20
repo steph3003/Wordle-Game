@@ -428,6 +428,40 @@ public class WordleModelTest{
         assertEquals("H should be gray (incorrect)", AppColors.GRAY, responseRow2[4].getBackgroundColor());
 
     }
+    
+    @Before
+    public void setup() {
+        // Initialize the Wordle model and set the target word
+        model = new WordleModel();
+        model.setWordList(List.of("APPLE")); // Mock the word list
+        model.generateCurrentWord(); // Select "APPLE" as the target word
+       // model.enableHardMode(); // Activate hard mode
+    }
+
+    @Test
+    public void hardMode_testGreenLetterRule() {
+        // Simulate a guess that produces a green letter
+        model.setCurrentColumn('A');
+        model.setCurrentColumn('L');
+        model.setCurrentColumn('P');
+        model.setCurrentColumn('L');
+        model.setCurrentColumn('E');
+        boolean isGuessValid = model.setCurrentRow(); // Process the guess
+
+        // Verify the first guess is valid
+        assertTrue(isGuessValid);
+
+        // Simulate a second guess with 'A' not in the correct position
+        model.setCurrentColumn('B');
+        model.setCurrentColumn('L');
+        model.setCurrentColumn('P');
+        model.setCurrentColumn('L');
+        model.setCurrentColumn('E');
+        boolean isSecondGuessValid = model.setCurrentRow(); // Process the guess
+
+        // Verify the second guess is invalid due to breaking the green letter rule
+        assertFalse(isSecondGuessValid);
+    }
 }
 
 
