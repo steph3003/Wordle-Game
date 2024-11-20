@@ -17,7 +17,6 @@ import java.util.logging.Level;
 
 public class AbsurdleModel extends Model {
 	
-	//sample comment
 	
 	//Declares possible words
 	private List<String> possibleWords;  
