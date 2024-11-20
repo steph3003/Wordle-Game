@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -36,6 +37,9 @@ public class AbsurdleModel extends Model {
 	
 	//Correct word Guess
 	public String correctWord;
+	
+	//Stores current word. For debugging
+	private String currentWord;
 	   
 	//logger
 	private static final Logger logger = Logger.getLogger(AbsurdleModel.class.getName());
@@ -223,7 +227,15 @@ public class AbsurdleModel extends Model {
 
 	   // Selects a new random word from the word list as the current word to guess
 	   public void setCurrentWord() {
-	       //Randomly select a word and set it as the target
+		// Ensure the remaining words list is valid
+		    if (remainingWords == null || remainingWords.isEmpty()) {
+		        throw new IllegalStateException("Word list is not initialized or is empty. Cannot set current word.");
+		    }
+
+		    // Select a random word from the remaining words
+		    Random random = new Random();
+		    currentWord = remainingWords.get(random.nextInt(remainingWords.size()));
+
 	   }
 
 	   // Adds a guessed character to the grid at the current column and updates the grid
