@@ -27,8 +27,10 @@ public class AbsurdleModel extends Model {
 	//Declares grid
 	private String[][] grid;
 	
+	
+	
+	
 	//verifies word list is loaded
-<<<<<<< HEAD
 	private boolean wordListLoaded = false;
 	
 	//Player's current guess
@@ -119,7 +121,6 @@ public class AbsurdleModel extends Model {
 	   public int getRemainingWordsSize() {
 	       return remainingWords.size();
 	   }
-=======
     public boolean wordListLoaded;
     
     //logger
@@ -178,7 +179,6 @@ public class AbsurdleModel extends Model {
     public int getRemainingWordsSize() {
         return remainingWords.size();
     }
->>>>>>> 848bf3a2d0d796431264496ded6de55279209a75
 
 
 
