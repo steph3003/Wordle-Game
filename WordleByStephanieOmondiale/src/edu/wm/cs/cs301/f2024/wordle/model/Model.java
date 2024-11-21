@@ -49,6 +49,45 @@ public abstract class Model {
        //Aids in word list loading 
        protected CompletableFuture<Void> wordListFuture;
        
+       private String currentGuess; // The player's current guess
+       
+       //Green feedback for hard mode
+       private Map<Integer, Character> greenMatches; 
+       
+       //Yellow feedback for hard mode
+       private Map<Integer, Character> yellowMatches; 
+       
+       //Gray feedback for hard mode
+       private List<Character> greyMatches; 
+       
+       // Getter and Setter for green matches in hard mode
+       public Map<Integer, Character> getGreenMatches() {
+           return greenMatches;
+       }
+
+       public void setGreenMatches(Map<Integer, Character> greenMatches) {
+           this.greenMatches = greenMatches;
+       }
+
+       // Getter and Setter for yellow matches in hard mode
+       public Map<Integer, Character> getYellowMatches() {
+           return yellowMatches;
+       }
+
+       public void setYellowMatches(Map<Integer, Character> yellowMatches) {
+           this.yellowMatches = yellowMatches;
+       }
+
+       // Getter and Setter for grey matches in hard mode
+       public List<Character> getGreyMatches() {
+           return greyMatches;
+       }
+
+       public void setGreyMatches(List<Character> greyMatches) {
+           this.greyMatches = greyMatches;
+       }
+
+       
        // Checks if the word list has finished loading
        public boolean isWordListLoaded() {
            return wordListLoaded;
@@ -234,6 +273,14 @@ public abstract class Model {
                return new String(guess).trim();
            }
            
+           public String getTheCurrentGuess() {
+               return currentGuess;
+           }
+           
+           public void setCurrentGuess(String currentGuess) {
+               this.currentGuess = currentGuess;
+           }
+           
         // Records a win and updates the streak and games played
            protected void recordWin(int rowNumber) {
                statistics.incrementTotalGamesPlayed();
@@ -299,4 +346,6 @@ public abstract class Model {
            protected void setCurrentStreak(int streak) {
                statistics.setCurrentStreak(streak);
            }
+
+		
 }
