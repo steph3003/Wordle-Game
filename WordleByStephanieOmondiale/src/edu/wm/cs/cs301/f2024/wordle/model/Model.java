@@ -53,6 +53,17 @@ public abstract class Model {
        public boolean isWordListLoaded() {
            return wordListLoaded;
        }
+    
+       
+       // Getter for the word list
+       protected List<String> getWordList() {
+           return wordList;
+       }
+
+       // Setter for the word list
+       protected void setWordList(List<String> wordList) {
+           this.wordList = wordList;
+       }
        
        // Tracks the color state of each letter for the visual keyboard
        protected Map<Character, Color> letterState = new HashMap<>();
@@ -74,11 +85,7 @@ public abstract class Model {
            return wordleGrid;
        }
        
-    // Sets the word list from an external source, providing a list of valid words for the game
-       protected void setWordList(List<String> wordList) {
-           this.wordList = wordList;
-       }
-       
+    
     // Adds a guessed character to the grid at the current column and updates the grid
        protected void setCurrentColumn(char c) {
            currentColumn++;
