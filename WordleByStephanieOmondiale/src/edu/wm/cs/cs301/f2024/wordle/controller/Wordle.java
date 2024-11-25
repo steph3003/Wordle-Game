@@ -4,8 +4,12 @@ import java.util.Scanner;
 
 import javax.swing.SwingUtilities;
 
+import edu.wm.cs.cs301.f2024.wordle.model.AbsurdleModel;
 import edu.wm.cs.cs301.f2024.wordle.model.AcceptanceRule;
 import edu.wm.cs.cs301.f2024.wordle.model.Model;
+import edu.wm.cs.cs301.f2024.wordle.model.RuleBasic;
+import edu.wm.cs.cs301.f2024.wordle.model.RuleHard;
+import edu.wm.cs.cs301.f2024.wordle.model.RuleLegitimateWordsOnly;
 import edu.wm.cs.cs301.f2024.wordle.model.WordleModel;
 import edu.wm.cs.cs301.f2024.wordle.view.WordleFrame;
 
@@ -36,7 +40,60 @@ public class Wordle implements Runnable {
 	 * @param args Array of strings that holds any arguments passed to the program
 	 */
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Wordle(rule, model, grid));
+		// Default configurations
+	    String strategy = "random";
+	    boolean hardMode = false;
+	    boolean onlyProperWords = false;
+
+	    // Parse command-line arguments
+	    for (int i = 0; i < args.length; i++) {
+	        switch (args[i]) {
+	            case "-s":
+	                if (i + 1 < args.length) {
+	                    strategy = args[++i];
+	                    if (!strategy.equals("random") && !strategy.equals("absurdle")) {
+	                        System.out.println("Invalid strategy. Use 'random' or 'absurdle'.");
+	                        return;
+	                    }
+	                } else {
+	                    System.out.println("Missing argument for -s.");
+	                    return;
+	                }
+	                break;
+	            case "-h":
+	                hardMode = true;
+	                break;
+	            case "-wo":
+	                onlyProperWords = true;
+	                break;
+	            default:
+	                System.out.println("Invalid argument: " + args[i]);
+	                return;
+	        }
+	    }
+
+	    // Select the appropriate strategy
+	    Model model;
+	    if (strategy.equals("random")) {
+	        model = new WordleModel(); // Random strategy
+	    } else {
+	        model = new AbsurdleModel(); // Absurdle strategy
+	    }
+
+	    // Set up the acceptance rule based on modes
+	    AcceptanceRule rule = new RuleBasic();
+	    if (hardMode) {
+	        rule = new RuleHard(rule); // Wrap with hard mode
+	    }
+	    if (onlyProperWords) {
+	        rule = new RuleLegitimateWordsOnly(rule); // Wrap with proper words rule
+	    }
+
+	    // Initialize the grid
+	    String[][] grid = new String[6][5]; // Example: 6 rows, 5 columns
+
+	    // Launch the game
+	    SwingUtilities.invokeLater(new Wordle(rule, model, grid));
 	}
 
 	/**
