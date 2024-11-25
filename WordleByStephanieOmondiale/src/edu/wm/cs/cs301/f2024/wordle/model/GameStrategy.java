@@ -17,6 +17,6 @@ public class GameStrategy {
 
         // Initialize the model and start the game
         model.initialize();
-        // Continue with game setup or UI invocation here
+        
     }
 }

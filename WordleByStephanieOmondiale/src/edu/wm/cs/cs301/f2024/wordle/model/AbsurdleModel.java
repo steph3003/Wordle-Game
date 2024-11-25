@@ -78,31 +78,7 @@ public class AbsurdleModel extends Model {
 	       remainingWords = new ArrayList<>(possibleWords);
 	   }
 
-	   public String guessWord(String guess) {
-	       Map<String, List<String>> patternToWords = new HashMap<>();
-
-	       // Generate patterns and map them to subsets of possible words
-	       for (String word : remainingWords) {
-	           String pattern = generatePattern(guess, word);
-	           patternToWords.computeIfAbsent(pattern, k -> new ArrayList<>()).add(word);
-	       }
-
-	       // Select the largest subset of words
-	       String chosenPattern = "";
-	       int maxSubsetSize = 0;
-	       for (Map.Entry<String, List<String>> entry : patternToWords.entrySet()) {
-	           if (entry.getValue().size() > maxSubsetSize) {
-	               maxSubsetSize = entry.getValue().size();
-	               chosenPattern = entry.getKey();
-	               remainingWords = entry.getValue();
-	           }
-	       }
-
-	       // Log the guess and remaining words count
-	       logger.info("Guess: " + guess + ", Pattern: " + chosenPattern + ", Remaining words: " + remainingWords.size());
-
-	       return chosenPattern;
-	   }
+	 
 
 	   private String generatePattern(String guess, String word) {
 	       StringBuilder pattern = new StringBuilder();
@@ -121,21 +97,8 @@ public class AbsurdleModel extends Model {
 	   public int getRemainingWordsSize() {
 	       return remainingWords.size();
 	   }
-    public boolean wordListLoaded;
     
-    //logger
-    private static final Logger logger = Logger.getLogger(AbsurdleModel.class.getName());
     
-    public AbsurdleModel(List<String> wordList) {
-        this.possibleWords = new ArrayList<>(wordList);
-        this.remainingWords = new ArrayList<>(wordList);
-    }
-
-    // Reset the game to start with the full list
-    public void resetGame() {
-        remainingWords = new ArrayList<>(possibleWords);
-    }
-
     public String guessWord(String guess) {
         Map<String, List<String>> patternToWords = new HashMap<>();
 
@@ -162,7 +125,8 @@ public class AbsurdleModel extends Model {
         return chosenPattern;
     }
 
-    private String generatePattern(String guess, String word) {
+    /**
+     * private String generatePattern(String guess, String word) {
         StringBuilder pattern = new StringBuilder();
         for (int i = 0; i < guess.length(); i++) {
             if (guess.charAt(i) == word.charAt(i)) {
@@ -179,6 +143,7 @@ public class AbsurdleModel extends Model {
     public int getRemainingWordsSize() {
         return remainingWords.size();
     }
+     */
 
 
 
@@ -187,44 +152,45 @@ public class AbsurdleModel extends Model {
 		   return (possibleWords != null && !possibleWords.isEmpty());
 	   }
 	   
+	   
+	   private List<String> loadWordsFromFile(String filePath) throws IOException {
+		    List<String> wordList = new ArrayList<>();
+		    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+		        String word;
+		        while ((word = reader.readLine()) != null) {
+		            word = word.trim();
+		            if (!word.isEmpty()) {
+		                wordList.add(word); // Add valid words only
+		            }
+		        }
+		    }
+		    return wordList;
+		}
 
 	   // Loads the word list asynchronously by starting a background thread
 	   public void createWordList() {
 		   Thread loaderThread = new Thread(() -> {
-	            try {
-	                // Load the word list from a file
-	                List<String> wordList = loadWordsFromFile("wordlist.txt");
+		        try {
+		            List<String> wordList = loadWordsFromFile("usa.txt");
+		            synchronized (this) {
+		                possibleWords = new ArrayList<>(wordList);
+		                remainingWords = new ArrayList<>(wordList);
+		            }
+		            isLoading = false; // Mark loading as complete
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		            isLoading = false; // Mark loading failure
+		        }
+		    });
 
-	                // Safely update the word lists
-	                synchronized (this) {
-	                    possibleWords = new ArrayList<>(wordList);
-	                    remainingWords = new ArrayList<>(wordList);
-	                }
+		    isLoading = true; // Mark loading as in-progress
+		    loaderThread.start();
 
-	                // Mark loading as complete
-	                isLoading = false;
-	            } catch (IOException e) {
-	                e.printStackTrace();
-	                isLoading = false; // Handle loading failure
-	            }
-	        });
-
-	        loaderThread.start(); // Start the background thread
-	    }
-
-	    // Reads the word list from a file
-	    private List<String> loadWordsFromFile(String filePath) throws IOException {
-	        List<String> wordList = new ArrayList<>();
-	        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-	            String word;
-	            while ((word = reader.readLine()) != null) {
-	                word = word.trim();
-	                if (!word.isEmpty()) {
-	                    wordList.add(word); // Add valid words only
-	                }
-	            }
-	        }
-	        return wordList;
+		    try {
+		        loaderThread.join(); // Wait for the thread to finish
+		    } catch (InterruptedException e) {
+		        e.printStackTrace();
+		    }
 	    }
 
 	    // Checks if the word list is still loading
@@ -243,7 +209,15 @@ public class AbsurdleModel extends Model {
 	// Initializes the grid and generates a new current word for the player to guess
 	   public void initialize() {
 		// Ensure the word list is loaded
-		    if (remainingWords == null || remainingWords.isEmpty()) {
+		   while (isWordListLoading()) {
+		        try {
+		            Thread.sleep(100); // Wait briefly before checking again
+		        } catch (InterruptedException e) {
+		            Thread.currentThread().interrupt();
+		        }
+		    }
+
+		    if (possibleWords == null || possibleWords.isEmpty()) {
 		        throw new IllegalStateException("Word list is not loaded. Cannot initialize the game.");
 		    }
 
@@ -304,8 +278,7 @@ public class AbsurdleModel extends Model {
 	   public void setCurrentColumn(char c) {
 	      //Place character in grid and update position
 	   }
-
-<<<<<<< HEAD
+	   
 	   // Removes the last guessed character from the grid (backspace functionality)
 	   public void backspace() {
 	       //Remove character from current column and adjust index
@@ -448,12 +421,6 @@ public class AbsurdleModel extends Model {
 	    // Otherwise, the game is not over
 	    return false;
     }
-	
-=======
-    //set the player's current win streak to the specified value
-    public void setCurrentStreak(int streak) {
-        //set the streak value
-    }
-    
->>>>>>> 848bf3a2d0d796431264496ded6de55279209a75
 }
+	
+

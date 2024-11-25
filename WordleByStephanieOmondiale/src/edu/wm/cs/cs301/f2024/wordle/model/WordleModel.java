@@ -1,6 +1,7 @@
 package edu.wm.cs.cs301.f2024.wordle.model;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +12,6 @@ import java.util.concurrent.TimeUnit;
 import edu.wm.cs.cs301.f2024.wordle.controller.ReadWordsRunnable;
 
 
-//import java.util.HashMap;
-//import java.util.Map;
 
 public class WordleModel extends Model{
 	// Current word to be processed, stored as an array of characters
@@ -61,8 +60,36 @@ public class WordleModel extends Model{
 
 	   // Loads the word list asynchronously by starting a background thread
 	   public void createWordList() {
-	       Thread backgroundThread = new Thread(() -> wordListLoaded = true);
-	       backgroundThread.start();
+		   Thread backgroundThread = new Thread(() -> {
+		        try {
+		            // Load words from file
+		            List<String> words = loadWordsFromFile("C:\\Users\\steph\\git\\wordlebystephanieomondiale\\WordleByStephanieOmondiale\\src\\resources\\usa.txt");
+
+		            // Synchronize updates to shared fields
+		            synchronized (this) {
+		                wordList = words; // Populate the word list
+		                wordListLoaded = true; // Mark the word list as loaded
+		            }
+
+		            System.out.println("Word list loaded successfully. Total words: " + wordList.size());
+		        } catch (IOException e) {
+		            System.err.println("Error loading word list: " + e.getMessage());
+		            e.printStackTrace();
+
+		            // Handle loading failure
+		            synchronized (this) {
+		                wordListLoaded = false;
+		            }
+		        }
+		    });
+
+		    // Mark loading in progress
+		    synchronized (this) {
+		        wordListLoaded = false;
+		    }
+
+		    // Start the background thread
+		    backgroundThread.start();
 	   }
 
 	   // Initializes the grid and generates a new current word for the player to guess
@@ -72,40 +99,50 @@ public class WordleModel extends Model{
 	       this.currentRow = 0;
 	       generateCurrentWord();
 	       this.guess = new char[columnCount];
+	       
 	   }
+	   
+	   public String getCurrentWord() {
+	        if (wordList == null || wordList.isEmpty()) {
+	            throw new IllegalStateException("Word list is not initialized or is empty.");
+	        }
+	        int randomIndex = new Random().nextInt(wordList.size());
+	        return wordList.get(randomIndex);
+	    }
 
 	   // Randomly selects a word from the word list and stores it as the current word to guess
 	   public void generateCurrentWord() {
-	       if (!wordListLoaded) {
-	           try {
-	               wordListFuture.join(); // Wait for word list to load before proceeding
-	               wordListLoaded = true;
-	           } catch (Exception e) {
-	               e.printStackTrace();
-	               return;
-	           }
-	       }
-	       if (wordList != null && !wordList.isEmpty()) {
-	           String word = getCurrentWord();
-	           this.currentWord = word.toUpperCase().toCharArray();
-	       } else {
-	           System.err.println("Error: Word list is empty or failed to load.");
-	       }
-	   }
+		// Ensure the word list has been loaded
+		    if (!wordListLoaded) {
+		        try {
+		            wordListFuture.join(); // Wait for the word list to load
+		            wordListLoaded = true;
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		            System.err.println("Error: Failed to load the word list.");
+		            return;
+		        }
+		    }
 
-	   // Returns a random word from the word list
-	   public String getCurrentWord() {
-	       return wordList.get(getRandomIndex());
-	   }
-
-	   // Generates a random index to select a word from the word list
-	   private int getRandomIndex() {
-	       int size = wordList.size();
-	       return random.nextInt(size);
+		    // Validate that the word list is not null or empty
+		    if (wordList != null && !wordList.isEmpty()) {
+		        try {
+		            // Retrieve a random word and assign it to currentWord
+		            String word = getCurrentWord();
+		            this.currentWord = word.toUpperCase().toCharArray();
+		            System.out.println("Current word selected: " + word);
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		            System.err.println("Error: Failed to generate current word.");
+		        }
+		    } else {
+		        System.err.println("Error: Word list is empty or failed to load.");
+		        this.currentWord = null; // Explicitly set currentWord to null if word list is invalid
+		    }
 	   }
 
 	   // Initializes the game grid, which is a 2D array of WordleResponse objects
-	   private WordleResponse[][] initializeWordleGrid() {
+	   protected WordleResponse[][] initializeWordleGrid() {
 	       WordleResponse[][] wordleGrid = new WordleResponse[maximumRows][columnCount];
 	       for (int row = 0; row < wordleGrid.length; row++) {
 	           for (int column = 0; column < wordleGrid[row].length; column++) {
@@ -119,6 +156,14 @@ public class WordleModel extends Model{
 	   public void setWordList(List<String> wordList) {
 	       this.wordList = wordList;
 	   }
+	   
+	   private int getRandomIndex() {
+		    if (wordList == null || wordList.isEmpty()) {
+		        throw new IllegalStateException("Word list is not initialized or is empty.");
+		    }
+		    // Generate a random index from 0 to wordList.size() - 1
+		    return new Random().nextInt(wordList.size());
+		}
 
 	   // Selects a new random word from the word list as the current word to guess
 	   public void setCurrentWord() {
@@ -127,12 +172,13 @@ public class WordleModel extends Model{
 	   }
 
 	   // Adds a guessed character to the grid at the current column and updates the grid
-	   public void setCurrentColumn(char c) {
+	     public void setCurrentColumn(char c) {
 	       currentColumn++;
 	       currentColumn = Math.min(currentColumn, (columnCount - 1));
 	       guess[currentColumn] = c;
 	       wordleGrid[currentRow][currentColumn] = new WordleResponse(c, Color.WHITE, Color.BLACK);
 	   }
+	    
 
 	   // Removes the last guessed character from the grid (backspace functionality)
 	   public void backspace() {
@@ -225,7 +271,7 @@ public class WordleModel extends Model{
 	   }
 
 	   // Checks if the guessed letter is present in the current word but at a different position
-	   private boolean contains(char[] currentWord, char[] guess, int column) {
+	   protected boolean contains(char[] currentWord, char[] guess, int column) {
 	       for (int index = 0; index < currentWord.length; index++) {
 	           if (index != column && guess[column] == currentWord[index]) {
 	               return true;
@@ -339,7 +385,7 @@ public class WordleModel extends Model{
 	       return rowResponse;
 	   }
 	   
-	   private boolean validGuess() {
+	   protected boolean validGuess() {
 	       // Convert guess to a trimmed, lowercase string
 	       String guessWord = new String(guess).trim().toLowerCase();
 	       
@@ -347,7 +393,7 @@ public class WordleModel extends Model{
 	       return wordList.contains(guessWord);
 	   }
 	   
-	   private void updateLetterState(char letter, Color newColor) {
+	   protected void updateLetterState(char letter, Color newColor) {
 	       Color currentColor = letterState.getOrDefault(letter, AppColors.GRAY);
 
 	       // Only upgrade colors: green > yellow > gray
@@ -380,5 +426,17 @@ public class WordleModel extends Model{
 	   public void setCurrentStreak(int streak) {
 	       statistics.setCurrentStreak(streak);
 	   }
+
+	@Override
+	public String processGuess(String guess) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isGameOver() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
 

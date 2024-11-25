@@ -1,6 +1,10 @@
 package edu.wm.cs.cs301.f2024.wordle.model;
 
 import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +19,7 @@ public abstract class Model {
 	
 	//Max number of guesses player can make
     protected int maxGuesses = 6;
-    
+        
     //Processes a player's guess by depending on the current game state, updating the game
     public abstract String processGuess(String guess);
     
@@ -122,6 +126,11 @@ public abstract class Model {
                }
            }
            return wordleGrid;
+       }
+       
+       /// Initialize currentRow to 0 (start of the game)
+       public Model() {
+           this.currentRow = 0; 
        }
        
     
@@ -269,7 +278,7 @@ public abstract class Model {
            }
            
         // Returns the current guess as a string
-           protected String getCurrentGuess() {
+           public String getCurrentGuess() {
                return new String(guess).trim();
            }
            
@@ -346,6 +355,32 @@ public abstract class Model {
            protected void setCurrentStreak(int streak) {
                statistics.setCurrentStreak(streak);
            }
+           
+           //Clears row for invalid guesses
+           protected void clearRow(String[][] grid, int rowIndex) {
+        	    for (int i = 0; i < grid[rowIndex].length; i++) {
+        	        grid[rowIndex][i] = ""; // Clear each cell in the row
+        	    }
+        	}
+           
+           //Helper method to load words from file
+           protected List<String> loadWordsFromFile(String filePath) throws IOException {
+        	    List<String> words = new ArrayList<>();
+        	    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+        	        String line;
+        	        while ((line = reader.readLine()) != null) {
+        	            line = line.trim();
+        	            if (!line.isEmpty()) {
+        	                words.add(line); // Add valid lines to the list
+        	            }
+        	        }
+        	    }
+        	    return words;
+        	}
+           
+           public int getCurrentRow() {
+       	    return currentRow;
+       	}
 
 		
 }
