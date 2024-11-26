@@ -35,9 +35,7 @@ public abstract class Model {
        
        // Index of current column and row
        // Initialized to -1 for column and 0 for row to indicate starting positions
-       protected int currentColumn;
-
-	WordleResponse[] currentRow;
+       protected int currentColumn, currentRow;
       
        
        // Random object to select a random word from the word list
@@ -101,7 +99,7 @@ public abstract class Model {
     
        
        // Getter for the word list
-       protected List<String> getWordList() {
+       public List<String> getWordList() {
            return wordList;
        }
 
@@ -380,7 +378,7 @@ public abstract class Model {
         	    return words;
         	}
            
-           public WordleResponse[] getCurrentRow() {
+           public int getCurrentRow() {
        	    return currentRow;
        	}
 

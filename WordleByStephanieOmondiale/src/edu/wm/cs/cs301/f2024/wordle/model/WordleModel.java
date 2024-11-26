@@ -46,6 +46,7 @@ public class WordleModel extends Model{
 	       return wordListLoaded;
 	   }
 	   
+	   
 	// Tracks the color state of each letter for the visual keyboard
 	   private Map<Character, Color> letterState = new HashMap<>();
 
@@ -102,12 +103,12 @@ public class WordleModel extends Model{
 	       
 	   }
 	   
-	   public String getCurrentWord() {
-	        if (wordList == null || wordList.isEmpty()) {
-	            throw new IllegalStateException("Word list is not initialized or is empty.");
-	        }
-	        int randomIndex = new Random().nextInt(wordList.size());
-	        return wordList.get(randomIndex);
+	   public char[] getCurrentWord() {
+		   if (wordList == null || wordList.isEmpty()) {
+		        throw new IllegalStateException("Word list is not initialized or is empty.");
+		    }
+		    int randomIndex = new Random().nextInt(wordList.size());
+		    return wordList.get(randomIndex).toCharArray(); // Convert String to char[]
 	    }
 
 	   // Randomly selects a word from the word list and stores it as the current word to guess
@@ -127,10 +128,14 @@ public class WordleModel extends Model{
 		    // Validate that the word list is not null or empty
 		    if (wordList != null && !wordList.isEmpty()) {
 		        try {
-		            // Retrieve a random word and assign it to currentWord
-		            String word = getCurrentWord();
-		            this.currentWord = word.toUpperCase().toCharArray();
-		            System.out.println("Current word selected: " + word);
+		            // Retrieve a random word as a String
+		            String word = getCurrentWord(); 
+		            
+		            // Convert the word to uppercase and then to a char array
+		            this.currentWord = word.toUpperCase().toCharArray(); 
+		            
+		            // Print the selected word for debugging
+		            System.out.println("Current word selected: " + String.valueOf(this.currentWord));
 		        } catch (Exception e) {
 		            e.printStackTrace();
 		            System.err.println("Error: Failed to generate current word.");
@@ -228,7 +233,7 @@ public class WordleModel extends Model{
 	           }
 	       }
 
-	       //Second pass to mark wrong positions (yellow)
+	       //Second pass to mark wrong positions (yellow)++
 	       for (int column = 0; column < guess.length; column++) {
 	           char guessedLetter = guess[column];
 
