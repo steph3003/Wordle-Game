@@ -467,4 +467,16 @@ public class AbsurdleModelTest {
 	        assertEquals("Total games played should increment by 1", initialTotalGames + 1, model.getStatistics().getTotalGamesPlayed());
 	        assertEquals("Win streak should reset to zero after a loss", 0, model.getCurrentStreak());
 	    }
+	    
+	    //Ensure absurdle works properly in hard mode
+	    @Test
+	    public void testHardModeValidationInAbsurdleModel() {
+	        Model model = new AbsurdleModel(); // Use absurdle strategy
+	        AcceptanceRule rule = new RuleHard(new RuleBasic()); // Hard mode rule
+	        
+	        model.setCurrentWord("BANANA"); // Set a target word
+	        model.setCurrentGuess("BAXXAA"); // Invalid guess (does not match the required pattern)
+	        
+	        assertFalse(rule.isAcceptableGuess(model));
+	    }
 }

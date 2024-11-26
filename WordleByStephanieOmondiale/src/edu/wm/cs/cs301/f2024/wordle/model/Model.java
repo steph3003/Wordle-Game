@@ -35,7 +35,9 @@ public abstract class Model {
        
        // Index of current column and row
        // Initialized to -1 for column and 0 for row to indicate starting positions
-       protected int currentColumn, currentRow;
+       protected int currentColumn;
+
+	WordleResponse[] currentRow;
       
        
        // Random object to select a random word from the word list
@@ -54,7 +56,7 @@ public abstract class Model {
        protected CompletableFuture<Void> wordListFuture;
        
        private String currentGuess; // The player's current guess
-       
+     
        //Green feedback for hard mode
        private Map<Integer, Character> greenMatches; 
        
@@ -378,9 +380,22 @@ public abstract class Model {
         	    return words;
         	}
            
-           public int getCurrentRow() {
+           public WordleResponse[] getCurrentRow() {
        	    return currentRow;
        	}
 
+           
+           public void setCurrentWord(String word) {
+               if (word != null) {
+                   this.currentWord = word.toUpperCase().toCharArray(); // Convert to uppercase and then to char array
+               } else {
+                   this.currentWord = null; // Handle null case
+               }
+           }
+           
+           public char[] getCurrentWord() {
+        	    return currentWord; // Return the currentWord character array
+        	}
+           
 		
 }

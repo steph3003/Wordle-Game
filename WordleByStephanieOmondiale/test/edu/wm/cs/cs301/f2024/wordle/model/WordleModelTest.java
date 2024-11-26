@@ -11,6 +11,7 @@ import java.util.List;
 import java.awt.Color;
 import java.util.Arrays;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class WordleModelTest{
@@ -462,6 +463,30 @@ public class WordleModelTest{
         // Verify the second guess is invalid due to breaking the green letter rule
         assertFalse(isSecondGuessValid);
     }
+    
+    //Tests that hard mode works in Wordle game
+    @Test
+    public void testHardModeValidationInWordleModel() {
+        Model model = new WordleModel(); // Use random strategy
+        AcceptanceRule rule = new RuleHard(new RuleBasic()); // Hard mode rule
+        
+        model.setCurrentWord("APPLE"); // Set a target word
+        model.setCurrentGuess("APEX"); // Invalid guess in hard mode (missing 'P')
+
+        assertFalse(rule.isAcceptableGuess(model));
+    }
+    
+    @Test
+    public void testValidGuessesInHardMode() {
+        Model model = new WordleModel();
+        AcceptanceRule rule = new RuleHard(new RuleBasic());
+        
+        model.setCurrentWord("GRAPE");
+        model.setCurrentGuess("GRAPE"); // Valid guess (matches the word perfectly)
+        
+        assertTrue(rule.isAcceptableGuess(model));
+    }
+
 }
 
 
