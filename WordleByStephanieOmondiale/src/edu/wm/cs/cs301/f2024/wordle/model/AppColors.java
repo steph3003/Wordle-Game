@@ -17,4 +17,8 @@ public class AppColors {
 	// Defines the outline for the colors, which will be used in the game
 	public static Color OUTLINE = new Color(211, 214, 218);
 
+	static final Color WHITE = Color.WHITE;
+
+	static final Color BLACK = Color.BLACK;
+
 }

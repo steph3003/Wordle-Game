@@ -14,6 +14,10 @@ import edu.wm.cs.cs301.f2024.wordle.controller.ReadWordsRunnable;
 
 
 public class WordleModel extends Model{
+	private static final Color BLACK = Color.BLACK;
+
+	private static final Color WHITE = Color.WHITE;
+
 	// Current word to be processed, stored as an array of characters
 	   private char[] currentWord, guess;
 
@@ -181,7 +185,7 @@ public class WordleModel extends Model{
 	       currentColumn++;
 	       currentColumn = Math.min(currentColumn, (columnCount - 1));
 	       guess[currentColumn] = c;
-	       wordleGrid[currentRow][currentColumn] = new WordleResponse(c, Color.WHITE, Color.BLACK);
+	       wordleGrid[currentRow][currentColumn] = new WordleResponse(c, WHITE, BLACK);
 	   }
 	    
 
@@ -226,7 +230,7 @@ public class WordleModel extends Model{
 	           
 	           if (guessedLetter == currentWord[column]) {
 	               // Correct position, mark as green
-	               wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.GREEN, Color.WHITE);
+	               wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.GREEN, WHITE);
 	               matchedGuess[column] = true;
 	               letterCounts.put(guessedLetter, letterCounts.get(guessedLetter) - 1); // Decrement count for green
 	               updateLetterState(guessedLetter, AppColors.GREEN); // Mark letter as green in letterState
@@ -244,12 +248,12 @@ public class WordleModel extends Model{
 
 	           // Check if the letter is in the target word in a different position and has remaining occurrences
 	           if (letterCounts.getOrDefault(guessedLetter, 0) > 0 && contains(currentWord, guess, column)) {
-	               wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.YELLOW, Color.BLACK);
+	               wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.YELLOW, BLACK);
 	               letterCounts.put(guessedLetter, letterCounts.get(guessedLetter) - 1);  // Decrement count for yellow
 	               updateLetterState(guessedLetter, AppColors.YELLOW); // Mark letter as yellow in letterState
 	           } else {
 	               // If not in the target word or no remaining occurrences, mark as gray
-	               wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.GRAY, Color.WHITE);
+	               wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.GRAY, WHITE);
 	               updateLetterState(guessedLetter, AppColors.GRAY); // Mark letter as gray in letterState
 	           }
 	       }
@@ -372,17 +376,17 @@ public class WordleModel extends Model{
 	       for (int i = 0; i < columnCount; i++) {
 	           char guessedChar = guess[i];
 	           if (guessedChar == currentWord[i]) {
-	               rowResponse[i] = new WordleResponse(guessedChar, AppColors.GREEN, Color.WHITE);
+	               rowResponse[i] = new WordleResponse(guessedChar, AppColors.GREEN, WHITE);
 	               letterCount.put(guessedChar, letterCount.get(guessedChar) - 1);
 	           } else {
-	               rowResponse[i] = new WordleResponse(guessedChar, AppColors.GRAY, Color.WHITE);
+	               rowResponse[i] = new WordleResponse(guessedChar, AppColors.GRAY, WHITE);
 	           }
 	       }
 
 	       for (int i = 0; i < columnCount; i++) {
 	           char guessedChar = guess[i];
 	           if (rowResponse[i].getBackgroundColor() == AppColors.GRAY && letterCount.getOrDefault(guessedChar, 0) > 0) {
-	               rowResponse[i] = new WordleResponse(guessedChar, AppColors.YELLOW, Color.WHITE);
+	               rowResponse[i] = new WordleResponse(guessedChar, AppColors.YELLOW, WHITE);
 	               letterCount.put(guessedChar, letterCount.get(guessedChar) - 1);
 	           }
 	       }

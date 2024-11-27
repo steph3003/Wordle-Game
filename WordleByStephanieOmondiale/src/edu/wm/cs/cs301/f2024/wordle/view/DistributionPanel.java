@@ -15,6 +15,10 @@ import edu.wm.cs.cs301.f2024.wordle.model.WordleModel;
 
 public class DistributionPanel extends JPanel {
 	
+	private static final Color WHITE = Color.WHITE;
+
+	private static final Color BLACK = Color.BLACK;
+
 	private static final long serialVersionUID = 1L;
 	
 	private double[] percentages;
@@ -73,7 +77,7 @@ public class DistributionPanel extends JPanel {
 
 		for (int index = 0; index < model.getMaximumRows(); index++) {
 			String text = Integer.toString(index + 1);
-			g2d.setColor(Color.BLACK);
+			g2d.setColor(BLACK);
 			g2d.drawString(text, x, y + 2);
 
 			if (index == lastValue
@@ -87,7 +91,7 @@ public class DistributionPanel extends JPanel {
 					+ y2);
 			g2d.fillRect(x1, y - metrics.getHeight() + margin, pixelWidth,
 					metrics.getHeight());
-			g2d.setColor(Color.WHITE);
+			g2d.setColor(WHITE);
 			text = String.format("%,d", counts[index]);
 			int textWidth = metrics.stringWidth(text);
 			g2d.drawString(Integer.toString(counts[index]),

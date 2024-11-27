@@ -171,7 +171,7 @@ public class AbsurdleModel extends Model {
 	   public void createWordList() {
 		   Thread loaderThread = new Thread(() -> {
 		        try {
-		            List<String> wordList = loadWordsFromFile("usa.txt");
+		            List<String> wordList = loadWordsFromFile("C:\\\\Users\\\\steph\\\\git\\\\wordlebystephanieomondiale\\\\WordleByStephanieOmondiale\\\\src\\\\resources\\\\usa.txt");
 		            synchronized (this) {
 		                possibleWords = new ArrayList<>(wordList);
 		                remainingWords = new ArrayList<>(wordList);

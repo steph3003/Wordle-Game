@@ -139,7 +139,7 @@ public abstract class Model {
            currentColumn++;
            currentColumn = Math.min(currentColumn, (columnCount - 1));
            guess[currentColumn] = c;
-           wordleGrid[currentRow][currentColumn] = new WordleResponse(c, Color.WHITE, Color.BLACK);
+           wordleGrid[currentRow][currentColumn] = new WordleResponse(c, AppColors.WHITE, AppColors.BLACK);
        }
        
     // Returns the index of the current row
@@ -169,7 +169,7 @@ public abstract class Model {
                
                if (guessedLetter == currentWord[column]) {
                    // Correct position, mark as green
-                   wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.GREEN, Color.WHITE);
+                   wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.GREEN, AppColors.WHITE);
                    matchedGuess[column] = true;
                    letterCounts.put(guessedLetter, letterCounts.get(guessedLetter) - 1); // Decrement count for green
                    updateLetterState(guessedLetter, AppColors.GREEN); // Mark letter as green in letterState
@@ -187,12 +187,12 @@ public abstract class Model {
 
                // Check if the letter is in the target word in a different position and has remaining occurrences
                if (letterCounts.getOrDefault(guessedLetter, 0) > 0 && contains(currentWord, guess, column)) {
-                   wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.YELLOW, Color.BLACK);
+                   wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.YELLOW, AppColors.BLACK);
                    letterCounts.put(guessedLetter, letterCounts.get(guessedLetter) - 1);  // Decrement count for yellow
                    updateLetterState(guessedLetter, AppColors.YELLOW); // Mark letter as yellow in letterState
                } else {
                    // If not in the target word or no remaining occurrences, mark as gray
-                   wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.GRAY, Color.WHITE);
+                   wordleGrid[currentRow][column] = new WordleResponse(guessedLetter, AppColors.GRAY, AppColors.WHITE);
                    updateLetterState(guessedLetter, AppColors.GRAY); // Mark letter as gray in letterState
                }
            }
@@ -397,3 +397,4 @@ public abstract class Model {
            
 		
 }
+
