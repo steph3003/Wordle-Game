@@ -5,6 +5,7 @@ import java.util.List;
 public class RuleLegitimateWordsOnly implements AcceptanceRule {
 	
 	
+	private static final String INVALID_GUESS_GUESS_IS_NOT_IN_THE_WORD_LIST = "Invalid guess. Guess is not in the word list.";
 	// Wrapped component
     private final AcceptanceRule decoratedRule;
 
@@ -42,7 +43,7 @@ public class RuleLegitimateWordsOnly implements AcceptanceRule {
 
         if (wordList == null || !wordList.contains(currentGuess)) {
             clearRow(model.getWordleGrid(), model.getCurrentGuess()); // Clear the invalid guess
-            System.out.println("Invalid guess. Guess is not in the word list.");
+            System.out.println(INVALID_GUESS_GUESS_IS_NOT_IN_THE_WORD_LIST);
             return false;
         }
 

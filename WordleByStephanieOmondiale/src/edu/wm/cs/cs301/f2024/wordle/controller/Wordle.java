@@ -15,6 +15,12 @@ import edu.wm.cs.cs301.f2024.wordle.view.WordleFrame;
 
 public class Wordle implements Runnable {
 	
+	private static final String GAME_OVER = "Game Over!";
+
+	private static final String GUESS_ACCEPTED = "Guess accepted!";
+
+	private static final String INVALID_GUESS_PLEASE_TRY_AGAIN = "Invalid guess. Please try again.";
+
 	//Rule for validating guesses
 	private static AcceptanceRule rule;
 	
@@ -112,12 +118,12 @@ public class Wordle implements Runnable {
             clearRow(grid, currentRow);
 
             // Inform the user to re-enter their guess
-            System.out.println("Invalid guess. Please try again.");
+            System.out.println(INVALID_GUESS_PLEASE_TRY_AGAIN);
 
             return false; // Guess not accepted
         }
 
-        System.out.println("Guess accepted!");
+        System.out.println(GUESS_ACCEPTED);
         return true; // Guess accepted
     }
 
@@ -143,7 +149,7 @@ public class Wordle implements Runnable {
             }
         }
 		scanner.close();
-        System.out.println("Game Over!");
+        System.out.println(GAME_OVER);
     }
 
 }

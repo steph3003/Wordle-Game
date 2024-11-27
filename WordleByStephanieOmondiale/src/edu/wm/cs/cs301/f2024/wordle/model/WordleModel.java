@@ -14,6 +14,12 @@ import edu.wm.cs.cs301.f2024.wordle.controller.ReadWordsRunnable;
 
 
 public class WordleModel extends Model{
+	private static final String WORD_LIST_IS_NOT_INITIALIZED_OR_IS_EMPTY = "Word list is not initialized or is empty.";
+
+	private static final String ERROR_LOADING_WORD_LIST = "Error loading word list: ";
+
+	private static final String TEXT_FILE = "C:\\Users\\steph\\git\\wordlebystephanieomondiale\\WordleByStephanieOmondiale\\src\\resources\\usa.txt";
+
 	private static final Color BLACK = Color.BLACK;
 
 	private static final Color WHITE = Color.WHITE;
@@ -68,7 +74,7 @@ public class WordleModel extends Model{
 		   Thread backgroundThread = new Thread(() -> {
 		        try {
 		            // Load words from file
-		            List<String> words = loadWordsFromFile("C:\\Users\\steph\\git\\wordlebystephanieomondiale\\WordleByStephanieOmondiale\\src\\resources\\usa.txt");
+		            List<String> words = loadWordsFromFile(TEXT_FILE);
 
 		            // Synchronize updates to shared fields
 		            synchronized (this) {
@@ -78,7 +84,7 @@ public class WordleModel extends Model{
 
 		            System.out.println("Word list loaded successfully. Total words: " + wordList.size());
 		        } catch (IOException e) {
-		            System.err.println("Error loading word list: " + e.getMessage());
+		            System.err.println(ERROR_LOADING_WORD_LIST + e.getMessage());
 		            e.printStackTrace();
 
 		            // Handle loading failure
@@ -109,7 +115,7 @@ public class WordleModel extends Model{
 	   
 	   public char[] getCurrentWord() {
 		   if (wordList == null || wordList.isEmpty()) {
-		        throw new IllegalStateException("Word list is not initialized or is empty.");
+		        throw new IllegalStateException(WORD_LIST_IS_NOT_INITIALIZED_OR_IS_EMPTY);
 		    }
 		    int randomIndex = new Random().nextInt(wordList.size());
 		    return wordList.get(randomIndex).toCharArray(); // Convert String to char[]
@@ -168,7 +174,7 @@ public class WordleModel extends Model{
 	   
 	   private int getRandomIndex() {
 		    if (wordList == null || wordList.isEmpty()) {
-		        throw new IllegalStateException("Word list is not initialized or is empty.");
+		        throw new IllegalStateException(WORD_LIST_IS_NOT_INITIALIZED_OR_IS_EMPTY);
 		    }
 		    // Generate a random index from 0 to wordList.size() - 1
 		    return new Random().nextInt(wordList.size());
