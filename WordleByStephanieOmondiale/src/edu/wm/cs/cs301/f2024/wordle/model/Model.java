@@ -395,6 +395,20 @@ public abstract class Model {
         	    return currentWord; // Return the currentWord character array
         	}
            
+           int getTotalGamesWon() {
+        	   return statistics.getTotalGamesWon();
+           }
+           
+           int getLastWin() {
+        	   return 0;
+           }
+           
+           int[] calculateArrayOfWins() {
+        	   return null;
+           }
+           
+           
+         
 		
 }
 

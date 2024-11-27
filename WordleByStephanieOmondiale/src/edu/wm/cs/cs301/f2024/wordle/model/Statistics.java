@@ -28,6 +28,11 @@ public class Statistics {
 	 */
 	private String path, log;
 	
+	private List<Boolean> gamesWon; // True if the game is won, false otherwise.
+	
+	private List<Integer> guessesPerGame; // Positive value for wins, negative or 0 for losses
+
+	
 	/**
 	 * This method sets up the environment for tracking and storing game statistics
 	 */
@@ -156,6 +161,16 @@ public class Statistics {
 	public void setFile(String path2) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public int getTotalGamesWon() {
+	    int totalWins = 0;
+	    for (boolean isWin : gamesWon) {
+	        if (isWin) {
+	            totalWins++;
+	        }
+	    }
+	    return totalWins;
 	}
 
 }
