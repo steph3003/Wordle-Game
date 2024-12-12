@@ -1,22 +1,21 @@
 package edu.wm.cs.cs301.f2024.wordle.model;
 
-public class GameStrategy {
-	public static void main(String[] args) {
-        // Default to "random" strategy if no argument is provided
-        String strategy = args.length > 0 ? args[0].toLowerCase() : "random";
-        
-        // Instantiate the model based on the chosen strategy
-        AbsurdleModel model;
-        if (strategy.equals("absurdle")) {
-            model = new AbsurdleModel();
-            System.out.println("Starting game with Absurdle strategy.");
-        } else {
-            model = new AbsurdleModel();
-            System.out.println("Starting game with Random strategy (default).");
-        }
+import java.util.ArrayList;
+import java.util.List;
 
-        // Initialize the model and start the game
-        model.initialize();
-        
+public class GameStrategy {
+	
+	protected List<String> wordList = new ArrayList<>(); 
+
+    public void processGuess(String guess, int currentRow, int wordListSize) {
+        System.out.println("Processing guess in GameStrategy: " + guess);
+        System.out.println("Current Row: " + currentRow);
+        System.out.println("Remaining word list size: " + wordListSize);
+
+        if (wordList.contains(guess)) {
+            wordList.remove(guess);
+        } else {
+            System.out.println("Incorrect guess. Try again.");
+        }
     }
 }
