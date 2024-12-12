@@ -15,6 +15,8 @@ import edu.wm.cs.cs301.f2024.wordle.model.SwitchStrategy;
 import edu.wm.cs.cs301.f2024.wordle.model.SwitchWhenWordListIsBelowThreshold;
 import edu.wm.cs.cs301.f2024.wordle.model.WordleModel;
 import edu.wm.cs.cs301.f2024.wordle.view.WordleFrame;
+import java.util.logging.Logger;
+
 
 public class Wordle implements Runnable {
 	
@@ -49,6 +51,7 @@ public class Wordle implements Runnable {
 	 * @param args Array of strings that holds any arguments passed to the program
 	 */
 	public static void main(String[] args) {
+		final Logger logger = Logger.getLogger(MixedModel.class.getName());
 		// Default configurations
 	    String strategy = "random";
 	    boolean hardMode = false;
@@ -56,7 +59,8 @@ public class Wordle implements Runnable {
 
 	    // Parse command-line arguments
 	    for (int i = 0; i < args.length; i++) {
-	        switch (args[i]) {
+	        SwitchAfterNGuesses switchStrategy;
+			switch (args[i]) {
 	            case "-s":
 	                if (i + 1 < args.length) {
 	                    strategy = args[++i];
@@ -75,6 +79,23 @@ public class Wordle implements Runnable {
 	            case "-wo":
 	                onlyProperWords = true;
 	                break;
+	            case "-ssn":
+	                if (i + 1 < args.length) {
+	                    int maxGuesses = Integer.parseInt(args[++i]);
+	                    switchStrategy = new SwitchAfterNGuesses(maxGuesses);
+	                    logger.info("Configured SwitchAfterNGuesses with max guesses: " + maxGuesses);
+	                }
+	                break;
+	            case "-ssr":
+	                switchStrategy = new SwitchRandomly(50); // Default 50% probability
+	                logger.info("Configured SwitchRandomly with default 50% probability.");
+	                break;
+	            case "-sst":
+	                if (i + 1 < args.length) {
+	                    int threshold = Integer.parseInt(args[++i]);
+	                    switchStrategy = new SwitchWhenWordListIsBelowThreshold(threshold);
+	                    logger.info("Configured SwitchWhenWordListIsBelowThreshold with threshold: " + threshold);
+	                }
 	            default:
 	                System.out.println("Invalid argument: " + args[i]);
 	                return;
@@ -87,7 +108,7 @@ public class Wordle implements Runnable {
 	        model = new WordleModel(); // Random strategy
 	    } else {
 	        model = new AbsurdleModel(); // Absurdle strategy
-	    } else if (strategy.equals("mixed")) {
+	    }  if (strategy.equals("mixed")) {
 	    	model = configureMixedStrategy(args); // Mixed strategy setup
 	        if (model == null) return; // Exit if configuration failed
 	    }

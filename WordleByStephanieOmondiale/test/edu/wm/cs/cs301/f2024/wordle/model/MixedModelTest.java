@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+
 public class MixedModelTest {
 	 @Test
 	    public void testSwitchAfterNGuesses() {

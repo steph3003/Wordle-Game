@@ -1,6 +1,11 @@
 package edu.wm.cs.cs301.f2024.wordle.model;
 
+import java.util.logging.Logger;
+
 public class MixedModel extends GameStrategy {
+	
+	private static final Logger logger = Logger.getLogger(MixedModel.class.getName());
+
 	
 	private final GameStrategy absurdleModel;  // Absurdle strategy instance
     private final GameStrategy wordleModel;   // Wordle strategy instance
@@ -12,21 +17,21 @@ public class MixedModel extends GameStrategy {
         this.absurdleModel = absurdleModel;
         this.wordleModel = wordleModel;
         this.switchStrategy = switchStrategy;
-        this.currentModel = absurdleModel; // Start with Absurdle by default
+        this.currentModel = absurdleModel; // Start with Absurdle, default
     }
 
     
     @Override
     public void processGuess(String guess, int currentRow, int wordListSize) {
-        // Check if the strategy should switch
-        if (switchStrategy.shouldSwitch(currentRow, wordListSize)) {
-            currentModel = (currentModel == absurdleModel) ? wordleModel : absurdleModel;
-            System.out.println("Switching strategy to: " + (currentModel == wordleModel ? "Wordle" : "Absurdle"));
-        }
+    	 logger.info("Processing guess: " + guess);
+    	    logger.info("Candidate set size: " + wordListSize);
 
-        // Delegate the guess processing to the currently active strategy
-        currentModel.processGuess(guess, currentRow, wordListSize);
+    	    if (switchStrategy.shouldSwitch(currentRow, wordListSize)) {
+    	        currentModel = (currentModel == absurdleModel) ? wordleModel : absurdleModel;
+    	        logger.info("Switch occurred at row: " + currentRow);
+    	        logger.info("Switched to strategy: " + (currentModel == wordleModel ? "Wordle" : "Absurdle"));
+    	    }
+
+    	    currentModel.processGuess(guess, currentRow, wordListSize); 
     }
-
-    
 }
